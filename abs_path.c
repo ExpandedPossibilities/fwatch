@@ -30,9 +30,14 @@
   If `output' is NULL, a newly allocated buffer of sufficient size
   will be used.
 
-  If `output' is non-null, and outlen is smaller than the path to
+  If `output' is non-NULL, and outlen is smaller than the path to
   be returned, returns NULL and sets errno to ERANGE. The content
-  of *output is undefined in this case.
+  of *output is undefined in this case. Note that since the real
+  number of bytes needed is not knowable in advance, substantial
+  work may have been done before the size mismatch is discovered.
+
+  Stores number of bytes actually used in `*used' if `used' is
+  non-NULL.
  */
 char*
 abs_path (const char *base, const char *rel,
@@ -92,14 +97,13 @@ abs_path (const char *base, const char *rel,
     if(out == NULL) return NULL; /* preserve errno */
     op = out + maxosize - 1;
   } else {
+    /* use the supplied buffer */
     out = output;
     op = out + MIN(maxosize,outlen) - 1;
   }
 
+  /* ensure output contains final NULL */
   *op = 0;
-
-  eat = 0;
-  ahead = 1;
 
   /* iterate backwards over the logical concatenation of base, "/",
      and rel, without consuming memory to hold the concatenation.
