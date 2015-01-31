@@ -12,9 +12,10 @@ abs_path (const char *base, const char *rel)
   const char *ebase, *erel, *targ, *ip;
   char *out, *op;
   size_t osize;
-  int ahead;
-  int eat;
   char c;
+  int ahead = 1;
+  int eat = 0;
+
 
   if(rel == NULL && base == NULL) {
     errno = EINVAL;
@@ -25,14 +26,18 @@ abs_path (const char *base, const char *rel)
     rel = "";
   }
 
-  if(rel[0] == '/' || base == NULL) {
-    base = "";
+  if(rel[0] == '/') {
+    base = NULL;
   }
 
-  ebase = base + strnlen(base, PATH_MAX);
-  if(*ebase != 0) {
-    errno = ENAMETOOLONG;
-    return NULL;
+  if(base == NULL) {
+    ebase = NULL;
+  } else {
+    ebase = base + strnlen(base, PATH_MAX);
+    if(*ebase != 0) {
+      errno = ENAMETOOLONG;
+      return NULL;
+    }
   }
 
   erel = rel + strnlen(rel, PATH_MAX);
@@ -43,7 +48,7 @@ abs_path (const char *base, const char *rel)
   osize = 1 + (erel - rel) + (ebase - base);
   out = malloc(osize);
   if(out == NULL) return NULL; /* preserve errno */
-  op = out + osize;
+  op = out + osize - 1;
   *op = 0;
 
   /* -------------------------------*/
@@ -51,8 +56,9 @@ abs_path (const char *base, const char *rel)
   ahead = 1;
 
   targ = rel;
-  for(ip=erel-1; ip >= targ;
-      ip = targ == rel && ip == targ? ( targ=base, ebase ) :  (ip-1)){
+  for(ip=erel-1;
+      ip >= targ;
+      ip = targ == rel && ip == targ && base? ( targ=base, ebase ) :  (ip-1)){
     c = ip==ebase?'/':*ip;
     printf("%c",c);
     if(ahead > 0){
