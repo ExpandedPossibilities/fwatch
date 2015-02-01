@@ -1,1 +1,5 @@
 *~
+*.o
+*.dSYM
+fwatch
+canonicalpath_test
