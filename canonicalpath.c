@@ -5,12 +5,13 @@
 #include <sys/param.h>
 #include <errno.h>
 #include <err.h>
-
+#include "canonicalpath.h"
 
 #define ounshift(x)                             \
   do{                                           \
   if(eat == 0) {                                \
     if(--op < out){                             \
+      if(output==NULL) free(out);               \
       errno = ERANGE;                           \
       return NULL;                              \
     } else {                                    \
@@ -40,8 +41,8 @@
   non-NULL.
  */
 char*
-abs_path (const char *base, const char *rel,
-          char* output, size_t outlen, size_t* used)
+canonicalpath (const char *base, const char *rel,
+          char* output, size_t outlen, size_t *used)
 {
   const char *ebase, *erel, *targ, *ip;
   char *out, *op;
@@ -195,20 +196,8 @@ abs_path (const char *base, const char *rel,
         free(out);
         return NULL; /* preserve errno */
       }
-      if(op != out ) {
-        free(out);
-      }
       out = op;
     }
   }
   return out;
-}
-
-int
-main (int argc, char** argv)
-{
-  char* pth = abs_path(getcwd(NULL,PATH_MAX), argv[1], NULL, 0, NULL);
-  if(!pth) err(1,"not sure what happened!");
-  printf("%s", pth );
-  return 0;
 }
