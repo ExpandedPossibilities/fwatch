@@ -10,8 +10,9 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "watch_paths.h"
+#include "watchpaths.h"
 #include "canonicalpath.h"
+#include "reallocarray.h"
 
 #define BPOINT do{}while(0)
 #define xfree(p) do{if(NULL != (p)){free(p);(p)=NULL;}}while(0)

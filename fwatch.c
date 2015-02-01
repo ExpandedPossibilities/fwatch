@@ -4,8 +4,8 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <err.h>
-#include "watch_paths.h"
-
+#include "watchpaths.h"
+#include "reallocarray.h"
 
 struct runinfo {
   int c_argc;

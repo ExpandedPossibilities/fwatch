@@ -3,13 +3,13 @@ CFLAGS=-g
 
 all: fwatch #fwatchtest
 
-watch_paths.o: watch_paths.c watch_paths.h
+watchpaths.o: watchpaths.c watchpaths.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 canonicalpath.o: canonicalpath.c canonicalpath.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-fwatch:  watch_paths.o canonicalpath.o fwatch.c
+fwatch:  watchpaths.o canonicalpath.o fwatch.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 canonicalpath_test: canonicalpath_test.c canonicalpath.o

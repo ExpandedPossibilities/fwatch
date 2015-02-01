@@ -1,11 +1,23 @@
 #ifndef __watch_paths_h_
 #define __watch_paths_h_
 
-#define u_int unsigned int
+#include <sys/types.h>
 
-#ifndef reallocarray
-#define reallocarray(ptr,num,sz) reallocf((ptr),(num) * (sz))
-#endif 
+#ifndef u_int
+#ifdef uint32_t
+#define u_int uint32_t
+#else
+#define u_int unsigned int
+#endif
+#endif
+
+#ifndef u_short
+#ifdef uint16_t
+#define u_short uint16_t
+#else
+#define u_short unsigned short
+#endif
+#endif
 
 int      watch_paths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, int *), void *blob);
 
