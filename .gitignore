@@ -3,3 +3,4 @@
 *.dSYM
 fwatch
 canonicalpath_test
+*.bak

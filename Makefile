@@ -29,15 +29,10 @@ test_canp: canonicalpath_test
 	./canonicalpath_test fred/234//../w..//
 
 clean:
-	rm -f fwatch canonicalpath_test *.o
+	rm -f fwatch canonicalpath_test *.o *.bak
 
 depend:
-	makedepend -Y -- $(CFLAGS) -- $(SRCS) 2>/dev/null
+	: > make.deps
+	makedepend -f make.deps -Y -- $(CFLAGS) -- $(SRCS) 2>/dev/null
 
-
-# DO NOT DELETE
-
-canonicalpath.o: canonicalpath.h
-canonicalpath_test.o: canonicalpath.h
-fwatch.o: watchpaths.h reallocarray.h
-watchpaths.o: watchpaths.h canonicalpath.h reallocarray.h
+.include make.deps
