@@ -134,7 +134,7 @@ main(int argc, char** argv)
   }
   printf("\n");
 #endif
-  return watch_paths(info.files, fcount, runscript, &info);
+  return watchpaths(info.files, fcount, runscript, &info);
 }
 
 

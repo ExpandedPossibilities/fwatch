@@ -1,5 +1,5 @@
-#ifndef __watch_paths_h_
-#define __watch_paths_h_
+#ifndef __watchpaths_h_
+#define __watchpaths_h_
 
 #include <sys/types.h>
 
@@ -19,8 +19,8 @@
 #endif
 #endif
 
-int      watch_paths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, int *), void *blob);
+int      watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, int *), void *blob);
 
-#endif /* __watch_paths_h_ */
+#endif /* __watchpaths_h_ */
 
 

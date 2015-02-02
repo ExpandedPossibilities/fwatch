@@ -30,7 +30,7 @@
 
 
 /*! struct pathinfo
- *  holds the per-path state for watch_paths, allowing callers to watch multiple
+ *  holds the per-path state for watchpaths, allowing callers to watch multiple
  *  paths simultaneously
  */
 struct pathinfo
@@ -124,7 +124,7 @@ walk_to_extant_parent(struct pathinfo *pinfo)
 }
 
 int
-watch_paths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, int *), void *blob)
+watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, int *), void *blob)
 {
   struct kevent *kes = NULL;
   int kq = -1;
@@ -183,7 +183,7 @@ watch_paths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, i
     pinfos[i].path = NULL;
     if(!inpaths[i]){
       errno = EINVAL;
-      report_error("NULL pathname provided to watch_paths");
+      report_error("NULL pathname provided to watchpaths");
       goto ERR;
     }
     if(inpaths[i][0]=='/'){

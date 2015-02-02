@@ -3,11 +3,10 @@ SRCS=$(wildcard *.c)
 
 all: fwatch
 
-fwatch:  watchpaths.o canonicalpath.o fwatch.c
-	$(CC) $(CFLAGS) $^ -o $@
+fwatch:  watchpaths.o canonicalpath.o
 
-canonicalpath_test: canonicalpath_test.c canonicalpath.o
-	$(CC) $(CFLAGS) $^ -o $@
+canonicalpath_test: canonicalpath.o
+
 
 test_canp: canonicalpath_test
 	./canonicalpath_test fred/234//../w..//
