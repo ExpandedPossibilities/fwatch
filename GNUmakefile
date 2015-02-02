@@ -1,5 +1,41 @@
+#Subdir build template from:
+#http://make.mad-scientist.net/papers/multi-architecture-builds/
+
+OBJDIR:=obj
+SRCDIR:=src
+
+ifndef REALMAKE
+
+.SUFFIXES:
+
+MAKETARGET = $(MAKE) --no-print-directory -C $@ -f $(abspath $(MAKEFILE_LIST)) \
+		 DEPS=$(abspath make.deps) REALMAKE=1 $(MAKECMDGOALS)
+
+.PHONY: $(OBJDIR)
+$(OBJDIR):
+	+@[ -d $@ ] || mkdir -p $@
+	+@$(MAKETARGET)
+
+GNUmakefile :: ;
+Makefile :: ;
+makefile :: ;
+%.mk :: ;
+
+% :: $(OBJDIR) ; :
+
+.PHONY: clean
+clean:
+	rm -rf $(OBJDIR)
+
+else
+#----- End Boilerplate
+
+SRCDIR=../src
+vpath %c $(SRCDIR)
+vpath %h $(SRCDIR)
+
 CFLAGS=-std=c99
-SRCS=$(wildcard *.c)
+SRCS=$(wildcard $(SRCDIR)/*.c)
 
 all: fwatch
 
@@ -16,7 +52,10 @@ clean:
 	rm -fr *.dSYM
 
 depend:
-	: > make.deps
-	makedepend -f make.deps -Y -- $(CFLAGS) -- $(SRCS) 2>/dev/null
+	: > $(DEPS)
+	makedepend -f $(DEPS) -Y -- $(CFLAGS) -- $(SRCS) 2>/dev/null
 
-include make.deps
+include $(DEPS)
+
+#----- Begin Boilerplate
+endif
