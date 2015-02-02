@@ -14,16 +14,20 @@
 #include "canonicalpath.h"
 #include "reallocarray.h"
 
-#define BPOINT do{}while(0)
 #define xfree(p) do{if(NULL != (p)){free(p);(p)=NULL;}}while(0)
 
-#ifdef DEBUG_WATCH_PATHS
-#define debug_printf printf
-#define report_error perror
-#else
-#define debug_printf(...) //(void)
-#define report_error(...) //(void)
+#ifndef WP_DEBUG
+#define WP_DEBUG 0
 #endif
+
+#ifndef WP_COMPLAIN
+#define WP_COMPLAIN 0
+#endif
+
+#define debug_printf(fmt, ...)  do { if (WP_DEBUG) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
+#define debug_print(str)        debug_printf("%s",str)
+#define report_error(x)         do { if (WP_COMPLAIN) perror(x); } while (0)
+
 
 /*! struct pathinfo
  *  holds the per-path state for watch_paths, allowing callers to watch multiple
@@ -142,9 +146,7 @@ watch_paths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, i
                    NOTE_TRUNCATE,
 #endif
                    NOTE_RENAME};
-#ifdef DEBUG_WATCH_PATHS
   char* type_names[] = {"Delete", "Write", "Extend", "Truncate", "Rename"};
-#endif
   int numtypes = 0;
 
   numtypes = sizeof(types)/sizeof(types[0]);
@@ -219,7 +221,6 @@ watch_paths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, i
        report_error("unable to do parent walk");
        goto ERR;
     }
-    BPOINT;
     
     if(*pinfos[i].fdp == -1){
       report_error("unable to open file for watching");
@@ -228,7 +229,6 @@ watch_paths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, i
   }
 
   while(cont) {
-    BPOINT;
     evt = eventbuff;
     count = kevent(kq, kes, numpaths, evt, numpaths+1, NULL); /* TODO: support timespec from caller */
     if(count > 0){
@@ -254,7 +254,7 @@ watch_paths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, i
           if(evt->fflags & (NOTE_DELETE | NOTE_RENAME)){
             pinfo->nextslash++;
             if(pinfo->nextslash >= pinfo->endslash){
-              debug_printf("Parents deleted to root of device. Giving up.\n");
+              debug_print("Parents deleted to root of device. Giving up.\n");
               goto ERR;
             }
           }

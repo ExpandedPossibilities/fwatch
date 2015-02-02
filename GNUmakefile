@@ -1,7 +1,7 @@
-CFLAGS=-g 
+CFLAGS=-std=c99
+SRCS=$(wildcard *.c)
 
-
-all: fwatch #fwatchtest
+all: fwatch
 
 watchpaths.o: watchpaths.c watchpaths.h
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -21,3 +21,7 @@ test_canp: canonicalpath_test
 clean:
 	rm -f fwatch fwatchtest canonicalpath_test *.o
 	rm -fr *.dSYM
+
+depend:
+	echo makedepend -Y -- $(CFLAGS) -- $(SRCS)
+
