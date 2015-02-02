@@ -14,7 +14,6 @@ CFLAGS+= -DDEBUG
 CFLAGS+= -DDEBUG_WATCH_PATHS
 .endif
 
-#echo *.c
 SRCS=canonicalpath.c canonicalpath_test.c fwatch.c watchpaths.c
 DEPS=deps.mk
 
@@ -30,10 +29,12 @@ test_canp: canonicalpath_test
 	./canonicalpath_test fred/234//../w..//
 
 clean:
-	rm -f fwatch canonicalpath_test *.o *.bak
+	rm -f obj/*
 
 depend:
-	: > $(deps)
-	makedepend -f $(deps) -Y -- $(CFLAGS) -- $(SRCS) 2>/dev/null
+	: > $(DEPS)
+	makedepend -f $(DEPS) -Y -- $(CFLAGS) -- $(SRCS) 2>/dev/null
 
-.include $(deps)
+.if exists($(DEPS))
+.include "$(DEPS)"
+.endif

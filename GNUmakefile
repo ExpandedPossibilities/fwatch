@@ -2,7 +2,6 @@
 #http://make.mad-scientist.net/papers/multi-architecture-builds/
 
 OBJDIR:=obj
-SRCDIR:=src
 
 ifndef REALMAKE
 
@@ -30,13 +29,13 @@ clean:
 else
 #----- End Boilerplate
 
-SRCDIR=../src
+SRCDIR=..
 vpath %c $(SRCDIR)
 vpath %h $(SRCDIR)
 
 CFLAGS=-std=c99
 SRCS=$(wildcard $(SRCDIR)/*.c)
-DEPS=../deps.mk
+DEPS=deps.mk
 
 all: fwatch
 
@@ -56,7 +55,7 @@ depend:
 	: > $(DEPS)
 	makedepend -f $(DEPS) -Y -- $(CFLAGS) -- $(SRCS) 2>/dev/null
 
-include $(DEPS)
+-include $(DEPS)
 
 #----- Begin Boilerplate
 endif
