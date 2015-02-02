@@ -23,5 +23,11 @@ clean:
 	rm -fr *.dSYM
 
 depend:
-	echo makedepend -Y -- $(CFLAGS) -- $(SRCS)
+	makedepend -f $(MAKEFILE_LIST) -Y -- $(CFLAGS) -- $(SRCS) 2>/dev/null
 
+# DO NOT DELETE
+
+canonicalpath.o: canonicalpath.h
+canonicalpath_test.o: canonicalpath.h
+fwatch.o: watchpaths.h reallocarray.h
+watchpaths.o: watchpaths.h canonicalpath.h reallocarray.h
