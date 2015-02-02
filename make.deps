@@ -1,6 +1,0 @@
-# DO NOT DELETE
-
-canonicalpath.o: canonicalpath.h
-canonicalpath_test.o: canonicalpath.h
-fwatch.o: watchpaths.h reallocarray.h
-watchpaths.o: watchpaths.h canonicalpath.h reallocarray.h

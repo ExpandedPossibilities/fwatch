@@ -9,7 +9,7 @@ ifndef REALMAKE
 .SUFFIXES:
 
 MAKETARGET = $(MAKE) --no-print-directory -C $@ -f $(abspath $(MAKEFILE_LIST)) \
-		 DEPS=$(abspath make.deps) REALMAKE=1 $(MAKECMDGOALS)
+		  REALMAKE=1 $(MAKECMDGOALS)
 
 .PHONY: $(OBJDIR)
 $(OBJDIR):
@@ -36,6 +36,7 @@ vpath %h $(SRCDIR)
 
 CFLAGS=-std=c99
 SRCS=$(wildcard $(SRCDIR)/*.c)
+DEPS=../deps.mk
 
 all: fwatch
 

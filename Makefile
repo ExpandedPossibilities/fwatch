@@ -16,6 +16,7 @@ CFLAGS+= -DDEBUG_WATCH_PATHS
 
 #echo *.c
 SRCS=canonicalpath.c canonicalpath_test.c fwatch.c watchpaths.c
+DEPS=deps.mk
 
 all: fwatch
 
@@ -32,7 +33,7 @@ clean:
 	rm -f fwatch canonicalpath_test *.o *.bak
 
 depend:
-	: > make.deps
-	makedepend -f make.deps -Y -- $(CFLAGS) -- $(SRCS) 2>/dev/null
+	: > $(deps)
+	makedepend -f $(deps) -Y -- $(CFLAGS) -- $(SRCS) 2>/dev/null
 
-.include make.deps
+.include $(deps)
