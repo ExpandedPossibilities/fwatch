@@ -19,14 +19,26 @@
     }                                           \
   }} while(0)
 
-
-#define xounshift(x)  if(eat == 0) *(--op)=(x)
+/* Convenience method for common use case. */
+char*
+canpath (const char *base, const char *rel)
+{
+  return canonicalpath(base, rel, NULL, 0, NULL);
+}
 
 /*
   Given a base path and a relative path, returns a path containing
   no instances of directories named "." or "..".
 
-  Either the base path or the relative path may be omitted.
+  When the base path is omitted, canonicalpath will behave as if
+  the base path had been populated with getcwd(NULL, 0).
+
+  Both the base path or the relative path may be omitted (passed NULL).
+
+  If more "../" elements are encountered than there are preceding
+  directories, in the path, extra "../" elements are silently consumed.
+  This behavior is similar to calling "cd .." from the root of the
+  file system.
 
   If `output' is NULL, a newly allocated buffer of sufficient size
   will be used.
@@ -50,11 +62,14 @@ canonicalpath (const char *base, const char *rel,
   char c;
   int ahead = 1;
   int eat = 0;
+  char* tofree = NULL;
 
-  if(rel == NULL && base == NULL) {
-    /* at least one of rel or base must be supplied */
-    errno = EINVAL;
-    return NULL;
+  if(base == NULL) {
+    tofree = getcwd(NULL, 0);
+    if(tofree == NULL) {
+      return NULL; /* preserve errno */
+    }
+    base = tofree;
   }
 
   if(rel == NULL){
@@ -75,6 +90,7 @@ canonicalpath (const char *base, const char *rel,
     /* establish a reference to the end of base */
     ebase = base + strnlen(base, PATH_MAX);
     if(*ebase != 0) {
+      if(tofree) free(tofree);
       errno = ENAMETOOLONG;
       return NULL;
     }
@@ -83,6 +99,7 @@ canonicalpath (const char *base, const char *rel,
   /* establish a reference to the end of rel */
   erel = rel + strnlen(rel, PATH_MAX);
   if(*erel != 0) {
+    if(tofree) free(tofree);
     errno = ENAMETOOLONG;
     return NULL;
   }
@@ -95,7 +112,10 @@ canonicalpath (const char *base, const char *rel,
   if(output == NULL){
     /* allocate the output buffer */
     out = malloc(maxosize);
-    if(out == NULL) return NULL; /* preserve errno */
+    if(out == NULL) {
+      if(tofree) free(tofree);
+      return NULL; /* preserve errno */
+    }
     op = out + maxosize - 1;
   } else {
     /* use the supplied buffer */
@@ -193,11 +213,13 @@ canonicalpath (const char *base, const char *rel,
          be resized */
       op = realloc(out, oused);
       if(op == NULL){
+        if(tofree) free(tofree);
         free(out);
         return NULL; /* preserve errno */
       }
       out = op;
     }
   }
+  if(tofree) free(tofree);
   return out;
 }
