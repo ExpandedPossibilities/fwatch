@@ -24,7 +24,7 @@ makefile :: ;
 
 .PHONY: clean
 clean:
-	rm -rf $(OBJDIR)
+	rm -rf $(OBJDIR)/*
 
 else
 #----- End Boilerplate
@@ -46,10 +46,6 @@ canonicalpath_test: canonicalpath.o
 
 test_canp: canonicalpath_test
 	./canonicalpath_test fred/234//../w..//
-
-clean:
-	rm -f fwatch fwatchtest canonicalpath_test *.o *.bak
-	rm -fr *.dSYM
 
 depend:
 	: > $(DEPS)
