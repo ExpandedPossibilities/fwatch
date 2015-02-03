@@ -29,7 +29,7 @@ test_canp: canonicalpath_test
 	./canonicalpath_test fred/234//../w..//
 
 clean:
-	rm -f obj/*
+	rm -f ../obj/*
 
 depend:
 	: > $(DEPS)
