@@ -12,6 +12,7 @@
   if(eat == 0) {                                \
     if(--op < out){                             \
       if(output==NULL) free(out);               \
+      if(tofree != NULL) free(tofree);                  \
       errno = ERANGE;                           \
       return NULL;                              \
     } else {                                    \
@@ -41,7 +42,7 @@ canpath (const char *base, const char *rel)
   file system.
 
   If `output' is NULL, a newly allocated buffer of sufficient size
-  will be used.
+  will be used. This buffer may later be free(3)'d.
 
   If `output' is non-NULL, and outlen is smaller than the path to
   be returned, returns NULL and sets errno to ERANGE. The content
@@ -51,7 +52,30 @@ canpath (const char *base, const char *rel)
 
   Stores number of bytes actually used in `*used' if `used' is
   non-NULL.
+
+  RETURN VALUES
+  -------------
+
+  If successfull, returns a pointer to a canonicalized version of
+  the `rel' relative to `base' (or to the current working directory
+  if `base' is NULL. If any error occurs, returns NULL and ensures
+  that a useful value is present in errno.
+
+
+  ERRORS
+  ------
+
+  [ENAMETOOLONG]    The `base' or `rel' parameters contain no NUL
+                    bytes within PATH_MAX bytes.
+
+  [ERANGE]          The `output' parameter was supplied and the
+                    canonical path is longer than `outlen'
+
+  canonicalpath may additionally return NULL and set errno to any
+  of the values specified by the library functions malloc(3),
+  realloc(3), or getcwd(3).
  */
+
 char*
 canonicalpath (const char *base, const char *rel,
           char* output, size_t outlen, size_t *used)
@@ -90,7 +114,7 @@ canonicalpath (const char *base, const char *rel,
     /* establish a reference to the end of base */
     ebase = base + strnlen(base, PATH_MAX);
     if(*ebase != 0) {
-      if(tofree) free(tofree);
+      if(tofree != NULL) free(tofree);
       errno = ENAMETOOLONG;
       return NULL;
     }
@@ -99,7 +123,7 @@ canonicalpath (const char *base, const char *rel,
   /* establish a reference to the end of rel */
   erel = rel + strnlen(rel, PATH_MAX);
   if(*erel != 0) {
-    if(tofree) free(tofree);
+    if(tofree != NULL) free(tofree);
     errno = ENAMETOOLONG;
     return NULL;
   }
@@ -113,7 +137,7 @@ canonicalpath (const char *base, const char *rel,
     /* allocate the output buffer */
     out = malloc(maxosize);
     if(out == NULL) {
-      if(tofree) free(tofree);
+      if(tofree != NULL) free(tofree);
       return NULL; /* preserve errno */
     }
     op = out + maxosize - 1;
@@ -213,13 +237,13 @@ canonicalpath (const char *base, const char *rel,
          be resized */
       op = realloc(out, oused);
       if(op == NULL){
-        if(tofree) free(tofree);
+        if(tofree != NULL) free(tofree);
         free(out);
         return NULL; /* preserve errno */
       }
       out = op;
     }
   }
-  if(tofree) free(tofree);
+  if(tofree != NULL) free(tofree);
   return out;
 }
