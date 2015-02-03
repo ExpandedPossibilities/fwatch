@@ -12,7 +12,7 @@
   if(eat == 0) {                                \
     if(--op < out){                             \
       if(output==NULL) free(out);               \
-      if(tofree != NULL) free(tofree);                  \
+      free(tofree);                             \
       errno = ERANGE;                           \
       return NULL;                              \
     } else {                                    \
@@ -114,7 +114,7 @@ canonicalpath (const char *base, const char *rel,
     /* establish a reference to the end of base */
     ebase = base + strnlen(base, PATH_MAX);
     if(*ebase != 0) {
-      if(tofree != NULL) free(tofree);
+      free(tofree);
       errno = ENAMETOOLONG;
       return NULL;
     }
@@ -123,7 +123,7 @@ canonicalpath (const char *base, const char *rel,
   /* establish a reference to the end of rel */
   erel = rel + strnlen(rel, PATH_MAX);
   if(*erel != 0) {
-    if(tofree != NULL) free(tofree);
+    free(tofree);
     errno = ENAMETOOLONG;
     return NULL;
   }
@@ -137,7 +137,7 @@ canonicalpath (const char *base, const char *rel,
     /* allocate the output buffer */
     out = malloc(maxosize);
     if(out == NULL) {
-      if(tofree != NULL) free(tofree);
+      free(tofree);
       return NULL; /* preserve errno */
     }
     op = out + maxosize - 1;
@@ -237,13 +237,13 @@ canonicalpath (const char *base, const char *rel,
          be resized */
       op = realloc(out, oused);
       if(op == NULL){
-        if(tofree != NULL) free(tofree);
+        free(tofree);
         free(out);
         return NULL; /* preserve errno */
       }
       out = op;
     }
   }
-  if(tofree != NULL) free(tofree);
+  free(tofree);
   return out;
 }

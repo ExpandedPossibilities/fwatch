@@ -14,8 +14,6 @@
 #include "canonicalpath.h"
 #include "reallocarray.h"
 
-#define xfree(p) do{if(NULL != (p)){free(p);(p)=NULL;}}while(0)
-
 #ifndef WP_DEBUG
 #define WP_DEBUG 0
 #endif
@@ -287,14 +285,14 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
 ERR:
   if(pinfos) {
     for(i=0;i<numpaths;i++){
-      xfree(pinfos[i].slashes);
-      xfree(pinfos[i].path);
+      free(pinfos[i].slashes);
+      free(pinfos[i].path);
     }
   }
-  xfree(basepath);
-  xfree(pinfos);
-  xfree(kes);
-  xfree(eventbuff);
+  free(basepath);
+  free(pinfos);
+  free(kes);
+  free(eventbuff);
   return ret;
 }
 
