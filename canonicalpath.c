@@ -21,8 +21,8 @@
   }} while(0)
 
 /* Convenience method for common use case. */
-char*
-canpath (const char *base, const char *rel)
+/*@null@*/ char*
+canpath (/*@null@*/ const char *base,/*@null@*/ const char *rel)
 {
   return canonicalpath(base, rel, NULL, 0, NULL);
 }
@@ -76,9 +76,9 @@ canpath (const char *base, const char *rel)
   realloc(3), or getcwd(3).
  */
 
-char*
-canonicalpath (const char *base, const char *rel,
-          char* output, size_t outlen, size_t *used)
+/*@null@*/ char*
+canonicalpath (/*@null@*/ const char *base, /*@null@*/ const char *rel,
+          /*@null@*/ char* output, size_t outlen, /*@null@*/ size_t *used)
 {
   const char *ebase, *erel, *targ, *ip;
   char *out, *op;
@@ -113,7 +113,7 @@ canonicalpath (const char *base, const char *rel,
   } else {
     /* establish a reference to the end of base */
     ebase = base + strnlen(base, PATH_MAX);
-    if(*ebase != 0) {
+    if(*ebase != '\0') {
       free(tofree);
       errno = ENAMETOOLONG;
       return NULL;
@@ -122,7 +122,7 @@ canonicalpath (const char *base, const char *rel,
 
   /* establish a reference to the end of rel */
   erel = rel + strnlen(rel, PATH_MAX);
-  if(*erel != 0) {
+  if(*erel != '\0') {
     free(tofree);
     errno = ENAMETOOLONG;
     return NULL;
@@ -148,7 +148,7 @@ canonicalpath (const char *base, const char *rel,
   }
 
   /* ensure output contains final NULL */
-  *op = 0;
+  *op = '\0';
 
   /* iterate backwards over the logical concatenation of base, "/",
      and rel, without consuming memory to hold the concatenation.
@@ -159,7 +159,7 @@ canonicalpath (const char *base, const char *rel,
   targ = rel;
   for(ip=erel-1;
       ip >= targ;
-      ip = targ == rel && ip == targ && base? ( targ=base, ebase ) :  (ip-1)){
+      ip = targ == rel && ip == targ && base != NULL ? ( targ=base, ebase ) :  (ip-1)){
     /* ebase, if defined, points at the null byte at the end of base
        the assignment below acts as if that null byte were the slash
        between base and rel.

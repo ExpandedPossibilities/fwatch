@@ -4,18 +4,20 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <err.h>
+#include <assert.h>
+
 #include "watchpaths.h"
 #include "reallocarray.h"
 
 struct runinfo {
   int c_argc;
-  char** c_argv;
-  char** files;
+  /*@NULL@*/ /*@dependent@*/ char** c_argv;
+  /*@NULL@*/ /*@dependent@*/ char** files;
   int replace;
 };
 
-void
-runscript(u_int flags, int idx, void *data, int *cont)
+static void
+runscript(/*@unused@*/ u_int flags, int idx, void *data, int *cont)
 {
   pid_t pid;
   int status = 0, exitcode = 0;
@@ -26,6 +28,10 @@ runscript(u_int flags, int idx, void *data, int *cont)
 
   printf("forking\n");
 #endif
+
+  assert(info != NULL);
+  assert(info->files != NULL);
+  assert(info->files != NULL);
 
   pid = fork();
   if(pid == 0){
@@ -41,11 +47,11 @@ runscript(u_int flags, int idx, void *data, int *cont)
     printf("\n");
 #endif
 
-    execvp(info->c_argv[0],info->c_argv);
-    
-    err(2, "failed to exec '%s'",info->c_argv[0]); /* //should not reach */
+    (void) execvp(info->c_argv[0],info->c_argv);
+
+    err(2, "failed to exec '%s'",info->c_argv[0]); /* should not reach */
   } else {
-    waitpid(pid, &status, 0);
+    (void) waitpid(pid, &status, 0);
     exitcode = WEXITSTATUS(status);
 
 #ifdef DEBUG
@@ -58,7 +64,7 @@ runscript(u_int flags, int idx, void *data, int *cont)
   }
 }
 
-void
+static void
 usage()
 {
   printf("Usage: fwatch utility [argument ...] ';' file [file2 ...]\n"
@@ -95,8 +101,8 @@ main(int argc, char** argv)
     return 1;
   }
 
-  for(i=1; i<argc && ! (argv[i][0] == ';' && argv[i][1] == 0); i++) {
-    if(argv[i][0] == '{' && argv[i][1] == '}' && argv[i][2] == 0){
+  for(i=1; i<argc && ! (argv[i][0] == ';' && argv[i][1] == '\0'); i++) {
+    if(argv[i][0] == '{' && argv[i][1] == '}' && argv[i][2] == '\0'){
       info.replace = info.c_argc;
     }
     info.c_argc++;

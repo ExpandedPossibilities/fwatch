@@ -2,9 +2,10 @@
 #define __canonicalpath_h_
 #include <stddef.h>
 
-char* canpath (const char *base, const char *rel);
+/*@null@*/ char* canpath (/*@null@*/const char *base, /*@null@*/const char *rel);
 
-char* canonicalpath (const char *base, const char *rel,
-                     char* output, size_t outlen, size_t* used);
+/*@null@*/ char* canonicalpath (/*@null@*/const char *base, /*@null@*/const char *rel,
+                     /*@null@*/char* output, size_t outlen,
+                     /*@null@*/size_t* used);
 
 #endif
