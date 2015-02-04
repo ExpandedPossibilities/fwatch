@@ -22,9 +22,15 @@
 #define WP_COMPLAIN 0
 #endif
 
+#ifdef S_SPLINT_S
+#define debug_printf printf
+#define debug_print printf
+#define report_error perror
+#else
 #define debug_printf(fmt, ...)  do { if (WP_DEBUG) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
 #define debug_print(str)        debug_printf("%s",str)
 #define report_error(x)         do { if (WP_COMPLAIN) perror(x); } while (0)
+#endif
 
 
 /*! struct pathinfo
@@ -34,30 +40,31 @@
 struct pathinfo
 {
   dev_t dev;
-  char *path;
-  char **slashes;
-  char **nextslash;
-  char **endslash;
-  struct kevent *ke;
+  /*@owned@*/ char *path;
+  /*@owned@*/ char **slashes;
+  /*@dependent@*/ char **nextslash;
+  /*@dependent@*/ char **endslash;
+  /*@dependent@*/ struct kevent *ke;
   int index;
-  long *fdp;
+  /*@dependent@*/ long *fdp;
 };
 
 
-char**   find_slashes(char* path, int len, int *sout);
-int      walk_to_extant_parent(struct pathinfo *pinfo);
+static /*@NULL@*/ char**   find_slashes(char* path, int len, /*@out@*/ size_t *sout);
+static int      walk_to_extant_parent(struct pathinfo *pinfo);
 
-char**
-find_slashes(char* path, int len, int *sout)
+/*@NULL@*/
+static char**
+find_slashes(char* path, int len, /*@out@*/ size_t *sout)
 {
-  int max = 0;
-  int i = 0;
-  int count = 1;
+  size_t max = 0;
+  size_t i = 0;
+  size_t count = 1;
   char *p = path;
   char **out = NULL;
-  
-  max = len >=0 ? len : PATH_MAX;
-  while(i<max && *p != 0){
+
+  max = len >=0 ? (size_t)len : PATH_MAX;
+  while(i<max && *p != '\0'){
     if(*(p++)=='/'){
       count++;
     }
@@ -65,6 +72,7 @@ find_slashes(char* path, int len, int *sout)
 
   out = reallocarray(NULL, count, sizeof(char*));
   if(out == NULL){
+    *sout = 0;
     return NULL; /* keeps errno */
   }
 
@@ -80,29 +88,29 @@ find_slashes(char* path, int len, int *sout)
   return out;
 }
 
-int
+static int
 walk_to_extant_parent(struct pathinfo *pinfo)
 {
   struct stat finfo;
 
   pinfo->nextslash = pinfo->slashes;
   if(*pinfo->fdp >= 0){
-    close(*pinfo->fdp);
+    (void) close((int)*pinfo->fdp);
   }
-  for(*pinfo->fdp = open(pinfo->path, O_RDONLY); /* open(2) errors checked in caller */
+  for(*pinfo->fdp = (long) open(pinfo->path, O_RDONLY); /* open(2) errors checked in caller */
       *pinfo->fdp == -1 &&
       (errno == ENOENT ||
        errno == ENOTDIR ||
        errno == EACCES ||
        errno == EPERM) && pinfo->nextslash < pinfo->endslash;
       pinfo->nextslash ++) {
-    if(*pinfo->nextslash) **pinfo->nextslash = 0;
+    if(*pinfo->nextslash) **pinfo->nextslash = '\0';
     debug_printf("open %s: ", pinfo->path);
-    *pinfo->fdp = open(pinfo->path, O_RDONLY);
+    *pinfo->fdp = (long) open(pinfo->path, O_RDONLY);
     debug_printf("%ld\n", *pinfo->fdp);
     if(*pinfo->nextslash) **pinfo->nextslash = '/';
     if(*pinfo->fdp >= 0){
-      if(-1 == fstat(*pinfo->fdp, &finfo)){
+      if(-1 == fstat((int) *pinfo->fdp, &finfo)){
         /* let caller see errno */
         return -1;
       }
@@ -115,27 +123,28 @@ walk_to_extant_parent(struct pathinfo *pinfo)
       }
     }
   }
-  if(pinfo->nextslash > pinfo->slashes){ 
+  if(pinfo->nextslash > pinfo->slashes){
     pinfo->nextslash--;
   }
   return 0;
 }
 
+
 int
 watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, int *), void *blob)
 {
-  struct kevent *kes = NULL;
+  /*@owned@*/ struct kevent *kes = NULL;
   int kq = -1;
-  struct kevent *eventbuff = NULL;
-  struct kevent *evt = NULL;
+  /*@owned@*/ struct kevent *eventbuff = NULL;
+  /*@dependent@*/ struct kevent *evt = NULL;
   int count = 0;
   int i = 0;
   int cont = 1;
   int ret = -1;
-  int numslashes = -1;
-  char *basepath = NULL;
-  struct pathinfo *pinfos = NULL;
-  struct pathinfo *pinfo = NULL;
+  size_t numslashes = 0;
+  /*@owned@*/ char *basepath = NULL;
+  /*@owned@*/ struct pathinfo *pinfos = NULL;
+  /*@dependent@*/ struct pathinfo *pinfo = NULL;
   u_int typemask = 0;
   u_int types[] = {NOTE_DELETE,
                    NOTE_WRITE,
@@ -147,7 +156,7 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
   char* type_names[] = {"Delete", "Write", "Extend", "Truncate", "Rename"};
   int numtypes = 0;
 
-  numtypes = sizeof(types)/sizeof(types[0]);
+  numtypes = (int) ( sizeof(types)/sizeof(types[0]) );
   for(i=0;i < numtypes; i++){
    typemask |= types[i];
   }
@@ -192,7 +201,9 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
       }
     } else {
       if(basepath == NULL) {
-        basepath = getcwd(NULL,PATH_MAX);
+/*@-nullpass@*/
+        basepath = getcwd(NULL, 0);
+/*@=nullpass@*/
         if(basepath == NULL) {
           report_error("Unable to find current path, needed for watching"
                        " relaive paths");
@@ -208,6 +219,10 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
 
     debug_printf("Watching for %s\n", pinfos[i].path);
     pinfos[i].slashes = find_slashes(pinfos[i].path, -1, &numslashes);
+    if(pinfos[i].slashes == NULL){
+      report_error("Unable to allocate space to track slashes in pathname");
+      goto ERR;
+    }
     pinfos[i].endslash = pinfos[i].slashes + numslashes;
     pinfos[i].nextslash = pinfos[i].slashes;
     pinfos[i].dev = -1;
@@ -219,18 +234,18 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
        report_error("unable to do parent walk");
        goto ERR;
     }
-    
+
     if(*pinfos[i].fdp == -1){
       report_error("unable to open file for watching");
       goto ERR;
     }
   }
 
-  while(cont) {
+  while(cont != 0) {
     evt = eventbuff;
     count = kevent(kq, kes, numpaths, evt, numpaths+1, NULL); /* TODO: support timespec from caller */
     if(count > 0){
-      for(; evt< &eventbuff[count]; evt++){
+      for(; evt < &eventbuff[count]; evt++){
         if(evt->flags & EV_ERROR){
           errno = evt->data;
           report_error("error in event list");
@@ -239,7 +254,7 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
         } else {
           pinfo = evt->udata;
 
-          if(*pinfo->nextslash) **pinfo->nextslash = 0;
+          if(*pinfo->nextslash) **pinfo->nextslash = '\0';
           debug_printf("EVT: %s\n",pinfo->path);
           if(*pinfo->nextslash) **pinfo->nextslash = '/';
 
@@ -269,7 +284,9 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
           }
 
           if(pinfo->nextslash == pinfo->slashes){
+/*@-noeffect@*/
             callback(evt->fflags, pinfo->index, blob, &cont);
+/*@=noeffect@*/
           }
         }
       }
