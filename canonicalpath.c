@@ -147,28 +147,28 @@ canonicalpath(/*@null@*/ const char *base,
   } else {
     /* use the supplied buffer */
     out = output;
-    op = out + MIN(maxosize,outlen) - 1;
+    op = out + MIN(maxosize, outlen) - 1;
   }
 
   /* ensure output contains final NULL */
   *op = '\0';
 
-  /* iterate backwards over the logical concatenation of base, "/",
-     and rel, without consuming memory to hold the concatenation.
+  /* iterate backwards over the logical concatenation of base, "/", and rel,
+     without consuming memory to hold the concatenation.
 
-     targ starts off pointing at rel, switches to base when rel is
-     consumed */
+     targ starts off pointing at rel, switches to base when rel is consumed */
 
   targ = rel;
-  for(ip=erel-1;
+  for(ip = erel - 1;
       ip >= targ;
-      ip = targ == rel && ip == targ && base != NULL ? ( targ=base, ebase ) :  (ip-1)){
+      ip = targ == rel && ip == targ && base != NULL ?
+        (targ=base, ebase) :  (ip-1)){
     /* ebase, if defined, points at the null byte at the end of base
        the assignment below acts as if that null byte were the slash
        between base and rel.
        If no base is being used, then rel already starts with a slash,
        ebase is NULL, and the conditional never takes the first branch. */
-    c = ip==ebase?'/':*ip;
+    c = ip == ebase ? '/' : *ip;
     /* DEBUG: printf("%c",c); */
     /* ahead holds the number of bytes not yet emitted (because they might
        represent "./" or "../" instructions */
@@ -178,13 +178,13 @@ canonicalpath(/*@null@*/ const char *base,
            othwerise it just indicates a directory whose name
            ends in .. */
         if(c == '/'){
-          if(ahead == 1) {
+          if(ahead == 1){
             continue; /* consume runs of slashes */
-          }else if(ahead == 2) {
+          } else if(ahead == 2){
             ahead = 1; /* ./ */
             continue;
           } else { /* ../ */
-            /* eat holds the number of directors to omit from output 
+            /* eat holds the number of directors to omit from output
                due to the presence of one or more runs of "../" */
             eat++;
             ahead = 1;
@@ -210,7 +210,7 @@ canonicalpath(/*@null@*/ const char *base,
       /* emit the current byte unless we're still obeying a "../" */
       ounshift(c);
       if(c == '/'){
-        if(eat>0) eat--;
+        if(eat > 0) eat--;
         /* next bytes might be part of a path traversal instruction */
         ahead = 1;
       }
@@ -218,16 +218,16 @@ canonicalpath(/*@null@*/ const char *base,
   }
 
   /* calculate memory used, including final NULL byte */
-  oused = out+maxosize-op;
+  oused = out + maxosize - op;
 
   /* Inform caller of length of path as if strlen were called on
      the return value.
      This is intentionally done here, before any errors can occur in
      the next block. */
-  if(used) *used = oused-1;
+  if(used) *used = oused - 1;
 
   /* DEBUG: printf ("\n>>%zu\n",oused); */
-  if(op>out){
+  if(op > out){
     /* we will have consumed more bytes than allocated in `out'
        IFF "./" or "//" or "../" are present
        In that case, the first few bytes of `out' are garbage.
