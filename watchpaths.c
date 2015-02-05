@@ -65,9 +65,11 @@
 #endif
 
 
-/*! struct pathinfo
- *  holds the per-path state for watchpaths, allowing callers to watch multiple
- *  paths simultaneously
+/*
+ * struct pathinfo
+ *
+ * holds the per-path state for watchpaths, allowing callers to watch
+ * multiple paths simultaneously
  */
 struct pathinfo {
   dev_t dev;

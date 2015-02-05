@@ -31,6 +31,6 @@
 
 #ifndef reallocarray
 /* OS X lacks reallocarray. This is a poor substitute. */
-#define reallocarray(ptr,num,sz) realloc((ptr),(num) * (sz))
+#define reallocarray(ptr, num, sz) realloc((ptr), (num) * (sz))
 #endif
 
