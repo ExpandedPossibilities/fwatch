@@ -60,7 +60,7 @@ runscript(/*@unused@*/ u_int flags, int idx, void *data, int *cont)
   int status = 0, exitcode = 0;
   struct runinfo *info = data;
 
-#ifdef DEBUG
+#ifdef FW_DEBUG
   char **dumper;
 
   printf("forking\n");
@@ -76,7 +76,7 @@ runscript(/*@unused@*/ u_int flags, int idx, void *data, int *cont)
       info->c_argv[info->replace] = info->files[idx];
     }
 
-#ifdef DEBUG
+#ifdef FW_DEBUG
     printf("exec\n");
     for(dumper = info->c_argv; *dumper; dumper++){
       printf(" %s\n", *dumper);
@@ -91,7 +91,7 @@ runscript(/*@unused@*/ u_int flags, int idx, void *data, int *cont)
     (void) waitpid(pid, &status, 0);
     exitcode = WEXITSTATUS(status);
 
-#ifdef DEBUG
+#ifdef FW_DEBUG
     printf("Exit Code: %d\n", exitcode);
 #endif
 
@@ -170,13 +170,14 @@ main(int argc, char **argv)
   }
   info.c_argv[info.c_argc] = NULL;
 
-#ifdef DEBUG
+#ifdef FW_DEBUG
   printf("ready:");
   for(i = 0; i < fcount; i++){
     printf(" %s", info.files[i]);
   }
   printf("\n");
 #endif
+
   return watchpaths(info.files, fcount, runscript, &info);
 }
 

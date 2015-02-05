@@ -1,17 +1,17 @@
 CFLAGS=-std=c99
 
 .ifdef RELEASE
-CFLAGS+=-O2 -pipe
+CFLAGS +=-O2 -pipe
 .else
-CFLAGS+=-g -pipe -Wall -pedantic
+CFLAGS +=-g -pipe -Wall -pedantic
 .endif
 
-.ifdef DEBUG
-CFLAGS+= -DDEBUG
+.ifdef FW_DEBUG
+CFLAGS += -DFW_DEBUG
 .endif
 
-.ifdef DEBUG_WATCH_PATHS
-CFLAGS+= -DDEBUG_WATCH_PATHS
+.ifdef WP_DEBUG
+CFLAGS += -DWP_DEBUG
 .endif
 
 SRCS=canonicalpath.c canonicalpath_test.c fwatch.c watchpaths.c
@@ -24,9 +24,6 @@ fwatch:  watchpaths.o canonicalpath.o fwatch.c
 
 canonicalpath_test: canonicalpath_test.c canonicalpath.o
 	$(CC) $(CFLAGS) $> -o $@
-
-test_canp: canonicalpath_test
-	./canonicalpath_test fred/234//../w..//
 
 clean:
 	rm -f ../obj/*

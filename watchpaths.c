@@ -190,7 +190,13 @@ watchpaths(char **inpaths, int numpaths,
                    NOTE_TRUNCATE,
 #endif
                    NOTE_RENAME};
-  char *type_names[] = {"Delete", "Write", "Extend", "Truncate", "Rename"};
+  char *type_names[] = {"Delete",
+                        "Write",
+                        "Extend",
+#ifdef NOTE_TRUNCATE
+                        "Truncate",
+#endif
+                        "Rename"};
   int numtypes = 0;
 
   numtypes = (int) (sizeof(types)/sizeof(types[0]));
@@ -299,11 +305,13 @@ watchpaths(char **inpaths, int numpaths,
           debug_printf("EVT: %s\n", pinfo->path);
           if(*pinfo->nextslash) **pinfo->nextslash = '/';
 
+#if WP_DEBUG
           for(i = 0; i < numtypes; i++){
             if(evt->fflags & types[i]){
                     debug_printf("--Matched: %s\n", type_names[i]);
             }
           }
+#endif
           /* NOTE_DELETE might be a new file copied onto the old path,
              needs work to follow. */
           if(evt->fflags & (NOTE_DELETE | NOTE_RENAME)){

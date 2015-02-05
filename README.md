@@ -25,12 +25,19 @@ scratches a similar itch and does run on Linux.
 
 # Building
 
-The base directory contains the source files, a GNUmake file, a (bsd)
+The base directory contains the source files, the GNUmakefile, the (bsd)
 Makefile. *The binaries are built in the obj directory.*
 
-Running `make' should do the right thing. If you plan to modify the
-files, consider running `make depend && make' so that make knows which
-header file modifications should trigger rebuilding.
+
+Normal: `make'
+
+Running `make' should do the right thing. On OS X this runs the
+GNUmakefile by default. On OpenBSD it should run bsd make using
+Makefile as the input.
+
+If you plan to modify the source, consider running `make depend &&
+make' so that make knows which header file modifications should
+trigger rebuilding.
 
 # Usage
 
@@ -122,7 +129,6 @@ The fwatch utility uses watchpaths to invoke a function which in turn
 invokes forks and execs another utility, optionally passing the
 pathname of the modified file as an argument to that utility. For
 increased safety, no shell is invoked in running the sub-program.
-
 
 # Bugs
 

@@ -33,19 +33,34 @@ SRCDIR=..
 vpath %c $(SRCDIR)
 vpath %h $(SRCDIR)
 
-CFLAGS=-std=c99
 SRCS=$(wildcard $(SRCDIR)/*.c)
 DEPS=deps.mk
+
+CFLAGS=-std=c99
+
+ifdef ANALYZE
+CFLAGS += --analyze
+endif
+
+ifdef RELEASE
+CFLAGS += -O2 -pipe
+else
+CFLAGS += -g -pipe -Wall -pedantic
+endif
+
+ifdef FW_DEBUG
+CFLAGS += -DFW_DEBUG
+endif
+
+ifdef WP_DEBUG
+CFLAGS += -DWP_DEBUG
+endif
 
 all: fwatch
 
 fwatch:  watchpaths.o canonicalpath.o
 
 canonicalpath_test: canonicalpath.o
-
-
-test_canp: canonicalpath_test
-	./canonicalpath_test fred/234//../w..//
 
 depend:
 	: > $(DEPS)
