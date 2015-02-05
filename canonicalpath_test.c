@@ -4,15 +4,36 @@
 #include <err.h>
 #include "canonicalpath.h"
 
+#ifdef S_SPLINT_S
+/*@noreturn@*/ void err(int eval, const char *fmt, ...);
+
+#endif
+
 int
-main (int argc, char** argv)
+main(int argc, char **argv)
 {
-  char* pth = canonicalpath(getcwd(NULL,PATH_MAX), argv[1], NULL, 0, NULL);
-  if(!pth) err(1,"not sure what happened!");
-  printf("%s\n", pth );
+  char *pth = NULL;
+  char *cwd = NULL;
+
+  if(argc < 1){
+    printf("At least one argument is required\n");
+    return 2;
+  }
+
+/*@-nullpass@*/
+  cwd = getcwd(NULL, 0);
+/*@=nullpass@*/
+
+  pth = canonicalpath(cwd, argv[1], NULL, 0, NULL);
+  if(pth == NULL) err(1, "not sure what happened!");
+  printf("%s\n", pth);
+
+  free(pth);
 
   pth = canonicalpath(argv[1], NULL, NULL, 0, NULL);
-  if(!pth) err(1,"not sure what happened!");
-  printf("%s\n", pth );
+  if(pth == NULL) err(1, "not sure what happened!");
+  printf("%s\n", pth);
+
+  free(pth);
   return 0;
 }
