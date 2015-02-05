@@ -216,7 +216,7 @@ watchpaths(char **inpaths, int numpaths,
     goto ERR;
   }
 
- /* Followint "+ 1" is to include space for an error event per kevent(2) */
+ /* Following "+ 1" is to include space for an error event per kevent(2) */
   eventbuff = reallocarray(NULL, numpaths + 1, sizeof(struct kevent));
   if(eventbuff == NULL){
     report_error("Unable to allocate event storage");
