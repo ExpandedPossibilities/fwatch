@@ -21,8 +21,8 @@
   }} while(0)
 
 /* Convenience method for common use case. */
-/*@null@*/ char*
-canpath (/*@null@*/ const char *base,/*@null@*/ const char *rel)
+/*@null@*/ char *
+canpath(/*@null@*/ const char *base, /*@null@*/ const char *rel)
 {
   return canonicalpath(base, rel, NULL, 0, NULL);
 }
@@ -76,9 +76,12 @@ canpath (/*@null@*/ const char *base,/*@null@*/ const char *rel)
   realloc(3), or getcwd(3).
  */
 
-/*@null@*/ char*
-canonicalpath (/*@null@*/ const char *base, /*@null@*/ const char *rel,
-          /*@null@*/ char* output, size_t outlen, /*@null@*/ size_t *used)
+/*@null@*/ char *
+canonicalpath(/*@null@*/ const char *base,
+              /*@null@*/ const char *rel,
+              /*@null@*/ char *output,
+              size_t outlen,
+              /*@null@*/ size_t *used)
 {
   const char *ebase, *erel, *targ, *ip;
   char *out, *op;
@@ -86,7 +89,7 @@ canonicalpath (/*@null@*/ const char *base, /*@null@*/ const char *rel,
   char c;
   int ahead = 1;
   int eat = 0;
-  char* tofree = NULL;
+  char *tofree = NULL;
 
   if(base == NULL) {
     tofree = getcwd(NULL, 0);
