@@ -5,8 +5,7 @@
 #include "canonicalpath.h"
 
 #ifdef S_SPLINT_S
-/*@noreturn@*/ void err(int eval, const char *fmt, ...);
-
+/*@noreturn@*/ void err(int, const char *, ...);
 #endif
 
 int

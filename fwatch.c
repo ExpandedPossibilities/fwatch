@@ -9,10 +9,16 @@
 #include "watchpaths.h"
 #include "reallocarray.h"
 
+
+#ifdef S_SPLINT_S
+/*@noreturn@*/ void err(int, const char *, ...);
+/*@noreturnwhenfalse@*/ void assert(int);
+#endif
+
 struct runinfo {
   int c_argc;
-  /*@NULL@*/ /*@dependent@*/ char** c_argv;
-  /*@NULL@*/ /*@dependent@*/ char** files;
+  /*@NULL@*/ /*@dependent@*/ char **c_argv;
+  /*@NULL@*/ /*@dependent@*/ char **files;
   int replace;
 };
 
@@ -24,14 +30,14 @@ runscript(/*@unused@*/ u_int flags, int idx, void *data, int *cont)
   struct runinfo *info = data;
 
 #ifdef DEBUG
-  char** dumper;
+  char **dumper;
 
   printf("forking\n");
 #endif
 
   assert(info != NULL);
   assert(info->files != NULL);
-  assert(info->files != NULL);
+  assert(info->c_argv != NULL);
 
   pid = fork();
   if(pid == 0){
@@ -41,24 +47,24 @@ runscript(/*@unused@*/ u_int flags, int idx, void *data, int *cont)
 
 #ifdef DEBUG
     printf("exec\n");
-    for(dumper = info->c_argv;*dumper;dumper++){
-      printf(" %s\n",*dumper);
+    for(dumper = info->c_argv; *dumper; dumper++){
+      printf(" %s\n", *dumper);
     }
     printf("\n");
 #endif
 
-    (void) execvp(info->c_argv[0],info->c_argv);
+    (void) execvp(info->c_argv[0], info->c_argv);
 
-    err(2, "failed to exec '%s'",info->c_argv[0]); /* should not reach */
+    err(2, "failed to exec '%s'", info->c_argv[0]); /* should not reach */
   } else {
     (void) waitpid(pid, &status, 0);
     exitcode = WEXITSTATUS(status);
 
 #ifdef DEBUG
-    printf("Exit Code: %d\n",exitcode);
+    printf("Exit Code: %d\n", exitcode);
 #endif
 
-    if(exitcode != 0) {
+    if(exitcode != 0){
       *cont = 0;
     }
   }
@@ -89,19 +95,19 @@ usage()
 }
 
 int
-main(int argc, char** argv)
+main(int argc, char **argv)
 {
   int i;
-  struct runinfo info = { 0, NULL, NULL, -1 };
+  struct runinfo info = {0, NULL, NULL, -1};
   int fcount;
-  char* arg;
+  char *arg;
 
-  if(argc <2){
+  if(argc < 2){
     usage();
     return 1;
   }
 
-  for(i=1; i<argc && ! (argv[i][0] == ';' && argv[i][1] == '\0'); i++) {
+  for(i = 1; i<argc && ! (argv[i][0] == ';' && argv[i][1] == '\0'); i++){
     if(argv[i][0] == '{' && argv[i][1] == '}' && argv[i][2] == '\0'){
       info.replace = info.c_argc;
     }
@@ -116,15 +122,15 @@ main(int argc, char** argv)
   info.files = &argv[info.c_argc + 2];
   fcount = argc - info.c_argc - 2;
 
-  info.c_argv = reallocarray(NULL, info.c_argc + 1, sizeof(char*));
+  info.c_argv = reallocarray(NULL, info.c_argc + 1, sizeof(char *));
   if(info.c_argv == NULL){
     err(2, "Unable to allocate argument array");
   }
-  for(i=0; i<info.c_argc;i++){
-    if(i == info.replace) {
+  for(i = 0; i < info.c_argc; i++){
+    if(i == info.replace){
       arg = NULL;
     } else {
-      arg = strdup(argv[i+1]);
+      arg = strdup(argv[i + 1]);
       if(arg == NULL){
         err(2, "Unable to allocate space for argument element");
       }
@@ -135,7 +141,7 @@ main(int argc, char** argv)
 
 #ifdef DEBUG
   printf("ready:");
-  for(i=0;i<fcount;i++){
+  for(i = 0; i < fcount; i++){
     printf(" %s", info.files[i]);
   }
   printf("\n");
