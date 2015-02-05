@@ -14,6 +14,10 @@ CFLAGS += -DFW_DEBUG
 CFLAGS += -DWP_DEBUG
 .endif
 
+.ifdef WP_COMPLAIN
+CFLAGS += -DWP_COMPLAIN
+.endif
+
 SRCS=canonicalpath.c canonicalpath_test.c fwatch.c watchpaths.c
 DEPS=deps.mk
 

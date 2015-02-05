@@ -56,6 +56,10 @@ ifdef WP_DEBUG
 CFLAGS += -DWP_DEBUG
 endif
 
+ifdef WP_COMPLAIN
+CFLAGS += -DWP_COMPLAIN
+endif
+
 all: fwatch
 
 fwatch:  watchpaths.o canonicalpath.o
