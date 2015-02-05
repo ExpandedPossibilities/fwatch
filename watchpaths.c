@@ -23,13 +23,14 @@
 #endif
 
 #ifdef S_SPLINT_S
-#define debug_printf printf
-#define debug_print printf
 #define report_error perror
+#define debug_print printf
+#define debug_printf printf
 #else
-#define debug_printf(fmt, ...)  do { if (WP_DEBUG) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
+#define report_error(x)         do { if(WP_COMPLAIN) perror(x); } while(0)
 #define debug_print(str)        debug_printf("%s",str)
-#define report_error(x)         do { if (WP_COMPLAIN) perror(x); } while (0)
+#define debug_printf(fmt, ...)  do { if(WP_DEBUG)       \
+      fprintf(stderr, fmt, __VA_ARGS__); } while(0)
 #endif
 
 
@@ -37,8 +38,7 @@
  *  holds the per-path state for watchpaths, allowing callers to watch multiple
  *  paths simultaneously
  */
-struct pathinfo
-{
+struct pathinfo {
   dev_t dev;
   /*@owned@*/ char *path;
   /*@owned@*/ char **slashes;
@@ -50,12 +50,14 @@ struct pathinfo
 };
 
 
-static /*@NULL@*/ char**   find_slashes(char* path, int len, /*@out@*/ size_t *sout);
-static int      walk_to_extant_parent(struct pathinfo *pinfo);
+/*@null@*/
+static char **find_slashes(char *path, int len, /*@out@*/ size_t *sout);
 
-/*@NULL@*/
-static char**
-find_slashes(char* path, int len, /*@out@*/ size_t *sout)
+static int    walk_to_extant_parent(struct pathinfo *pinfo);
+
+/*@null@*/
+static char **
+find_slashes(char *path, int len, /*@out@*/ size_t *sout)
 {
   size_t max = 0;
   size_t i = 0;
@@ -63,14 +65,14 @@ find_slashes(char* path, int len, /*@out@*/ size_t *sout)
   char *p = path;
   char **out = NULL;
 
-  max = len >=0 ? (size_t)len : PATH_MAX;
-  while(i<max && *p != '\0'){
-    if(*(p++)=='/'){
+  max = len >= 0 ? (size_t) len : PATH_MAX;
+  while(i < max && *p != '\0'){
+    if(*(p++) == '/'){
       count++;
     }
   }
 
-  out = reallocarray(NULL, count, sizeof(char*));
+  out = reallocarray(NULL, count, sizeof(char *));
   if(out == NULL){
     *sout = 0;
     return NULL; /* keeps errno */
@@ -78,8 +80,8 @@ find_slashes(char* path, int len, /*@out@*/ size_t *sout)
 
   p = path;
 
-  out[count-1] = p; /* count is always at least 1 */
-  for(i=count-2; i>0; i--){
+  out[count - 1] = p; /* count is always at least 1 */
+  for(i = count - 2; i > 0; i--){
     do { p++; } while(*p != '/');
     out[i] = p;
   }
@@ -97,13 +99,14 @@ walk_to_extant_parent(struct pathinfo *pinfo)
   if(*pinfo->fdp >= 0){
     (void) close((int)*pinfo->fdp);
   }
-  for(*pinfo->fdp = (long) open(pinfo->path, O_RDONLY); /* open(2) errors checked in caller */
+  for(*pinfo->fdp = (long) open(pinfo->path, O_RDONLY);
+      /* open(2) errors checked in caller */
       *pinfo->fdp == -1 &&
       (errno == ENOENT ||
        errno == ENOTDIR ||
        errno == EACCES ||
        errno == EPERM) && pinfo->nextslash < pinfo->endslash;
-      pinfo->nextslash ++) {
+      pinfo->nextslash++) {
     if(*pinfo->nextslash) **pinfo->nextslash = '\0';
     debug_printf("open %s: ", pinfo->path);
     *pinfo->fdp = (long) open(pinfo->path, O_RDONLY);
@@ -131,7 +134,8 @@ walk_to_extant_parent(struct pathinfo *pinfo)
 
 
 int
-watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, int *), void *blob)
+watchpaths(char **inpaths, int numpaths,
+           void (*callback) (u_int, int, void *, int *), void *blob)
 {
   /*@owned@*/ struct kevent *kes = NULL;
   int kq = -1;
@@ -153,11 +157,11 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
                    NOTE_TRUNCATE,
 #endif
                    NOTE_RENAME};
-  char* type_names[] = {"Delete", "Write", "Extend", "Truncate", "Rename"};
+  char *type_names[] = {"Delete", "Write", "Extend", "Truncate", "Rename"};
   int numtypes = 0;
 
-  numtypes = (int) ( sizeof(types)/sizeof(types[0]) );
-  for(i=0;i < numtypes; i++){
+  numtypes = (int) (sizeof(types)/sizeof(types[0]));
+  for(i = 0; i < numtypes; i++){
    typemask |= types[i];
   }
 
@@ -179,13 +183,14 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
     goto ERR;
   }
 
-  eventbuff = reallocarray(NULL, numpaths+1, sizeof(struct kevent)); /* include space for an error event */
+ /* Followint "+ 1" is to include space for an error event per kevent(2) */
+  eventbuff = reallocarray(NULL, numpaths + 1, sizeof(struct kevent));
   if(eventbuff == NULL){
     report_error("Unable to allocate event storage");
     goto ERR;
   }
 
-  for( i=0; i< numpaths; i++){
+  for(i = 0; i < numpaths; i++){
     pinfos[i].index = i;
     pinfos[i].path = NULL;
     if(!inpaths[i]){
@@ -193,18 +198,18 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
       report_error("NULL pathname provided to watchpaths");
       goto ERR;
     }
-    if(inpaths[i][0]=='/'){
+    if(inpaths[i][0] == '/'){
       pinfos[i].path = strndup(inpaths[i], PATH_MAX);
       if(pinfos[i].path == NULL){
         report_error("Unable to allocate space for path of file to watch");
         goto ERR;
       }
     } else {
-      if(basepath == NULL) {
+      if(basepath == NULL){
 /*@-nullpass@*/
         basepath = getcwd(NULL, 0);
 /*@=nullpass@*/
-        if(basepath == NULL) {
+        if(basepath == NULL){
           report_error("Unable to find current path, needed for watching"
                        " relaive paths");
           goto ERR;
@@ -226,9 +231,10 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
     pinfos[i].endslash = pinfos[i].slashes + numslashes;
     pinfos[i].nextslash = pinfos[i].slashes;
     pinfos[i].dev = -1;
-    EV_SET(&kes[i], -1, EVFILT_VNODE, EV_ADD | EV_ONESHOT, typemask, 0, &pinfos[i]);
+    EV_SET(&kes[i], -1, EVFILT_VNODE, EV_ADD | EV_ONESHOT, typemask,
+           0, &pinfos[i]);
     pinfos[i].ke = &kes[i];
-    pinfos[i].fdp = (long*)&(kes[i].ident);
+    pinfos[i].fdp = (long *)&(kes[i].ident);
 
     if(walk_to_extant_parent(&pinfos[i]) == -1){
        report_error("unable to do parent walk");
@@ -241,9 +247,11 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
     }
   }
 
-  while(cont != 0) {
+  while(cont != 0){
     evt = eventbuff;
-    count = kevent(kq, kes, numpaths, evt, numpaths+1, NULL); /* TODO: support timespec from caller */
+    /* TODO: support timespec from caller */
+    count = kevent(kq, kes, numpaths, evt, numpaths + 1, NULL);
+
     if(count > 0){
       for(; evt < &eventbuff[count]; evt++){
         if(evt->flags & EV_ERROR){
@@ -255,15 +263,16 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
           pinfo = evt->udata;
 
           if(*pinfo->nextslash) **pinfo->nextslash = '\0';
-          debug_printf("EVT: %s\n",pinfo->path);
+          debug_printf("EVT: %s\n", pinfo->path);
           if(*pinfo->nextslash) **pinfo->nextslash = '/';
 
-          for(i=0;i < numtypes; i++){
+          for(i = 0; i < numtypes; i++){
             if(evt->fflags & types[i]){
                     debug_printf("--Matched: %s\n", type_names[i]);
             }
           }
-          /* NOTE_DELETE might be a new file copied onto the old path, needs work to follow. */
+          /* NOTE_DELETE might be a new file copied onto the old path,
+             needs work to follow. */
           if(evt->fflags & (NOTE_DELETE | NOTE_RENAME)){
             pinfo->nextslash++;
             if(pinfo->nextslash >= pinfo->endslash){
@@ -272,13 +281,15 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
             }
           }
 
-          if(*pinfo->nextslash) { /* *pinfo->nextslash == 0 when examining leaf */
+          if(*pinfo->nextslash){
+            /* *pinfo->nextslash == 0 when examining leaf */
             if(walk_to_extant_parent(pinfo) == -1){
                report_error("unable to do parent walk");
                goto ERR;
             }
-            if(*pinfo->fdp == -1) {
-              report_error("Unrecoverable error encountered trying to open a file");
+            if(*pinfo->fdp == -1){
+              report_error("Unrecoverable error encountered trying "
+                           "to open a file");
               goto ERR;
             }
           }
@@ -300,8 +311,8 @@ watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, in
   ret = 0;
 
 ERR:
-  if(pinfos) {
-    for(i=0;i<numpaths;i++){
+  if(pinfos){
+    for(i = 0; i < numpaths; i++){
       free(pinfos[i].slashes);
       free(pinfos[i].path);
     }

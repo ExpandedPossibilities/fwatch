@@ -21,7 +21,9 @@
   }} while(0)
 
 /* Convenience method for common use case. */
-/*@null@*/ char *
+
+/*@null@*/
+char *
 canpath(/*@null@*/ const char *base, /*@null@*/ const char *rel)
 {
   return canonicalpath(base, rel, NULL, 0, NULL);
