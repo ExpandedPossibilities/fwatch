@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Eric Kobrin
+ * Copyright (c) 2015, Expanded Possibilities, Inc. <ek_fwatch@expandedpossibilities.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

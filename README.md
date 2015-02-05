@@ -136,4 +136,4 @@ rather slow "getcwd" to be invoked. This also consumes extra
 memory. If you will be using canonicalpath in a loop in your own code,
 consider pre-calculating the base path.
 
-Please report additional bugs to erluko@gmail.com
+Please report additional bugs to fwatch_bugs@expandedpossibilities.com
