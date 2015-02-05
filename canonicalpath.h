@@ -43,7 +43,7 @@
  *
  * See the documentation for canonicalpath for more information
  */
-/*@null@*/ char* inline canpath (/*@null@*/ const char *base,
+/*@null@*/ inline char* canpath (/*@null@*/ const char *base,
                                  /*@null@*/ const char *rel);
 
 /*
