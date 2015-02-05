@@ -19,7 +19,8 @@
 #endif
 #endif
 
-int      watchpaths(char **inpaths, int numpaths, void (*callback)(u_int, int, void *, int *), void *blob);
+int watchpaths(char **inpaths, int numpaths,
+               void (*callback) (u_int, int, void *, int *), void *blob);
 
 #endif /* __watchpaths_h_ */
 

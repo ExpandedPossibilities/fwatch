@@ -78,7 +78,8 @@ canpath(/*@null@*/ const char *base, /*@null@*/ const char *rel)
   realloc(3), or getcwd(3).
  */
 
-/*@null@*/ char *
+/*@null@*/
+char *
 canonicalpath(/*@null@*/ const char *base,
               /*@null@*/ const char *rel,
               /*@null@*/ char *output,
