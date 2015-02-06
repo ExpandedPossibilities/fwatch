@@ -305,13 +305,12 @@ watchpaths(char **inpaths, int numpaths,
           debug_printf("EVT: %s\n", pinfo->path);
           if(*pinfo->nextslash) **pinfo->nextslash = '/';
 
-#if WP_DEBUG
-          for(i = 0; i < numtypes; i++){
+          for(i = 0; WP_DEBUG && i < numtypes; i++){
             if(evt->fflags & types[i]){
                     debug_printf("--Matched: %s\n", type_names[i]);
             }
           }
-#endif
+
           /* NOTE_DELETE might be a new file copied onto the old path,
              needs work to follow. */
           if(evt->fflags & (NOTE_DELETE | NOTE_RENAME)){
