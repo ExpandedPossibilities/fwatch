@@ -68,8 +68,22 @@
 /*
  * struct pathinfo
  *
- * holds the per-path state for watchpaths, allowing callers to watch
- * multiple paths simultaneously
+ * This holds the per-path state for watchpaths, allowing callers to
+ * watch multiple paths simultaneously. These variables were extracted
+ * from watchpath (single path version) when converting to the current
+ * version which simultaneously watches multiple paths.
+ *
+ * dev:        the device id of the leaf node
+ * path:       the path to be watched
+ * slashes:    an array of pointers to the '/' characters in `path'
+ * nextslash:  a pointer to the next element of `slashes' to examine
+ * endslash:   a pointer to the final element of `slashes'
+ * ke:         a reference to the kevent structure passed to kevent(2)
+ *             for this path. It points to an element of the changelist
+ *             array.
+ * index:      the index in the array of paths to watch which corresponds
+ *             to this structure.
+ * fdp:        a pointer used to extract the file descriptor from a kevent
  */
 struct pathinfo {
   dev_t dev;
@@ -101,6 +115,11 @@ static int    walk_to_extant_parent(struct pathinfo *pinfo);
  *  CODE THAT USES SHORTENED PATH
  *  if(*nextslash) **nextslash = '/';
  *
+ * The reason for `if(*nextslash)' is that the 0th "slash" pointer
+ * returned is set to NULL, so that the caller's slash-walking loop
+ * can distinguish between the leaf and one of its parent directories.
+ *
+ * ARGUMENTS
  *
  * path: the string to search
  * len:  the length of the path string or zero to calculate the length
@@ -184,10 +203,12 @@ walk_to_extant_parent(struct pathinfo *pinfo)
        errno == EPERM) && pinfo->nextslash < pinfo->endslash;
       pinfo->nextslash++) {
 
+    /* temporarily truncate pinfo->path at the next slash */
     if(*pinfo->nextslash) **pinfo->nextslash = '\0';
     debug_printf("open %s: ", pinfo->path);
     *pinfo->fdp = (long) open(pinfo->path, O_RDONLY);
     debug_printf("%ld\n", *pinfo->fdp);
+    /* restore the slash in pinfo->path */
     if(*pinfo->nextslash) **pinfo->nextslash = '/';
 
     if(*pinfo->fdp >= 0){
@@ -215,14 +236,14 @@ int
 watchpaths(char **inpaths, int numpaths,
            void (*callback) (u_int, int, void *, int *), void *blob)
 {
-  /*@owned@*/ struct kevent *kes = NULL;
+  /*@owned@*/ struct kevent *changelist = NULL;
   int kq = -1;
   /*@owned@*/ struct kevent *eventbuff = NULL;
   /*@dependent@*/ struct kevent *evt = NULL;
-  int count = 0;
+  int eventcount = 0;
   int i = 0;
-  int cont = 1;
-  int ret = -1;
+  int cont = 1; /* &cont is passed to callback, if set to 0, main loop ends */
+  int ret = -1; /* stores return value for watchpaths */
   size_t numslashes = 0;
   /*@owned@*/ char *basepath = NULL;
   /*@owned@*/ struct pathinfo *pinfos = NULL;
@@ -262,8 +283,8 @@ watchpaths(char **inpaths, int numpaths,
     goto ERR;
   }
 
-  kes = reallocarray(NULL, numpaths, sizeof(struct kevent));
-  if(kes == NULL){
+  changelist = reallocarray(NULL, numpaths, sizeof(struct kevent));
+  if(changelist == NULL){
     report_error("Unable to allocate event setup storage");
     goto ERR;
   }
@@ -323,10 +344,10 @@ watchpaths(char **inpaths, int numpaths,
     pinfos[i].endslash = pinfos[i].slashes + numslashes;
     pinfos[i].nextslash = pinfos[i].slashes;
     pinfos[i].dev = -1;
-    EV_SET(&kes[i], -1, EVFILT_VNODE, EV_ADD | EV_ONESHOT, typemask,
+    EV_SET(&changelist[i], -1, EVFILT_VNODE, EV_ADD | EV_ONESHOT, typemask,
            0, &pinfos[i]);
-    pinfos[i].ke = &kes[i];
-    pinfos[i].fdp = (long *)&(kes[i].ident);
+    pinfos[i].ke = &changelist[i];
+    pinfos[i].fdp = (long *)&(changelist[i].ident);
 
     if(walk_to_extant_parent(&pinfos[i]) == -1){
        report_error("unable to do parent walk");
@@ -342,10 +363,10 @@ watchpaths(char **inpaths, int numpaths,
   while(cont != 0){
     evt = eventbuff;
     /* TODO: support timespec from caller */
-    count = kevent(kq, kes, numpaths, evt, numpaths + 1, NULL);
+    eventcount = kevent(kq, changelist, numpaths, evt, numpaths + 1, NULL);
 
-    if(count > 0){
-      for(; evt < &eventbuff[count]; evt++){
+    if(eventcount > 0){
+      for(; evt < &eventbuff[eventcount]; evt++){
         if(evt->flags & EV_ERROR){
           errno = evt->data;
           report_error("error in event list");
@@ -354,13 +375,17 @@ watchpaths(char **inpaths, int numpaths,
         } else {
           pinfo = evt->udata;
 
-          if(*pinfo->nextslash) **pinfo->nextslash = '\0';
-          debug_printf("EVT: %s\n", pinfo->path);
-          if(*pinfo->nextslash) **pinfo->nextslash = '/';
+          if(WP_DEBUG){
+            /* temporarily truncate pinfo->path at the next slash */
+            if(*pinfo->nextslash) **pinfo->nextslash = '\0';
+            debug_printf("EVT: %s\n", pinfo->path);
+            /* restore the slash in pinfo->path */
+            if(*pinfo->nextslash) **pinfo->nextslash = '/';
 
-          for(i = 0; WP_DEBUG && i < numtypes; i++){
-            if(evt->fflags & types[i]){
-                    debug_printf("--Matched: %s\n", type_names[i]);
+            for(i = 0; i < numtypes; i++){
+              if(evt->fflags & types[i]){
+                debug_printf("--Matched: %s\n", type_names[i]);
+              }
             }
           }
 
@@ -414,7 +439,7 @@ ERR:
   }
   free(basepath);
   free(pinfos);
-  free(kes);
+  free(changelist);
   free(eventbuff);
   return ret;
 }
