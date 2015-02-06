@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Expanded Possibilities, Inc. 
+ * Copyright (c) 2015, Expanded Possibilities, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,9 @@
 #endif
 #endif
 
+/*
+ *
+ */
 int watchpaths(char **inpaths, int numpaths,
                void (*callback) (u_int, int, void *, int *), void *blob);
 

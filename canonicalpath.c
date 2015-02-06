@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Expanded Possibilities, Inc. 
+ * Copyright (c) 2015, Expanded Possibilities, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,13 +29,15 @@
  *  SUCH DAMAGE.
  */
 
+#include <sys/param.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#include <sys/param.h>
 #include <errno.h>
 #include <err.h>
+
 #include "canonicalpath.h"
 
 #define ounshift(x)                             \

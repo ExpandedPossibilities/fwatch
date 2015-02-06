@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Expanded Possibilities, Inc. 
+ * Copyright (c) 2015, Expanded Possibilities, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,17 @@
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+
 #include <stdio.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <libgen.h>
-#include <sys/stat.h>
 #include <string.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include "watchpaths.h"
 #include "canonicalpath.h"
 #include "reallocarray.h"
