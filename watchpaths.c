@@ -88,6 +88,26 @@ static char **find_slashes(char *path, int len, /*@out@*/ size_t *sout);
 
 static int    walk_to_extant_parent(struct pathinfo *pinfo);
 
+
+/* find_slashes
+ *
+ * Returns an array of pointers to the slashes in the path argument.
+ *
+ * The caller sets the value at one of the pointers to '\0' in order
+ * to "truncate" the path string at a particular parent directory.
+ *
+ * Common usage:
+ *  if(*nextslash) **nextslash = '\0';
+ *  CODE THAT USES SHORTENED PATH
+ *  if(*nextslash) **nextslash = '/';
+ *
+ *
+ * path: the string to search
+ * len:  the length of the path string or zero to calculate the length
+ * sout: a pointer to a size_t which will be populated with the length
+ *       of the return array
+ */
+
 /*@null@*/
 static char **
 find_slashes(char *path, int len, /*@out@*/ size_t *sout)
@@ -98,6 +118,7 @@ find_slashes(char *path, int len, /*@out@*/ size_t *sout)
   char *p = path;
   char **out = NULL;
 
+  /* count the number of slashes */
   max = len >= 0 ? (size_t) len : PATH_MAX;
   while(i < max && *p != '\0'){
     if(*(p++) == '/'){
@@ -123,15 +144,37 @@ find_slashes(char *path, int len, /*@out@*/ size_t *sout)
   return out;
 }
 
+/*
+ * walk_to_extant_parent
+ *
+ * Given a pointer to a pinfo struct, modifies the structure to
+ * reference the first parent directory of pinfo->path which actually
+ * exists.
+ *
+ * Stops at device boundaries.
+ *
+ * Returns 0 if successful, returns -1 and sets errno otherwise.
+ */
 static int
 walk_to_extant_parent(struct pathinfo *pinfo)
 {
   struct stat finfo;
 
+  /*
+   * start at the leaf every time incase multiple path elements were
+   * created at once, such as by mv
+   */
   pinfo->nextslash = pinfo->slashes;
   if(*pinfo->fdp >= 0){
+    /* don't leak file descriptors */
     (void) close((int)*pinfo->fdp);
   }
+
+  /*
+   * loop over each parent directory until one is encountered that
+   * exists or returs an error other than one of the ones that may go
+   * away when the missing directory is recreated
+   */
   for(*pinfo->fdp = (long) open(pinfo->path, O_RDONLY);
       /* open(2) errors checked in caller */
       *pinfo->fdp == -1 &&
@@ -140,11 +183,13 @@ walk_to_extant_parent(struct pathinfo *pinfo)
        errno == EACCES ||
        errno == EPERM) && pinfo->nextslash < pinfo->endslash;
       pinfo->nextslash++) {
+
     if(*pinfo->nextslash) **pinfo->nextslash = '\0';
     debug_printf("open %s: ", pinfo->path);
     *pinfo->fdp = (long) open(pinfo->path, O_RDONLY);
     debug_printf("%ld\n", *pinfo->fdp);
     if(*pinfo->nextslash) **pinfo->nextslash = '/';
+
     if(*pinfo->fdp >= 0){
       if(-1 == fstat((int) *pinfo->fdp, &finfo)){
         /* let caller see errno */
@@ -199,6 +244,7 @@ watchpaths(char **inpaths, int numpaths,
                         "Rename"};
   int numtypes = 0;
 
+  /* calculate mask to use in EV_SET call */
   numtypes = (int) (sizeof(types)/sizeof(types[0]));
   for(i = 0; i < numtypes; i++){
    typemask |= types[i];
@@ -222,7 +268,7 @@ watchpaths(char **inpaths, int numpaths,
     goto ERR;
   }
 
- /* Following "+ 1" is to include space for an error event per kevent(2) */
+  /* Following "+ 1" is to include space for an error event per kevent(2) */
   eventbuff = reallocarray(NULL, numpaths + 1, sizeof(struct kevent));
   if(eventbuff == NULL){
     report_error("Unable to allocate event storage");
@@ -238,12 +284,18 @@ watchpaths(char **inpaths, int numpaths,
       goto ERR;
     }
     if(inpaths[i][0] == '/'){
+      /* absolute paths are used literally without canonicalization */
+      /* TODO: consider canonicalizing all paths */
       pinfos[i].path = strndup(inpaths[i], PATH_MAX);
       if(pinfos[i].path == NULL){
         report_error("Unable to allocate space for path of file to watch");
         goto ERR;
       }
     } else {
+      /*
+       * basepath is stores the current directory, it is only
+       * calculated once
+       */
       if(basepath == NULL){
 /*@-nullpass@*/
         basepath = getcwd(NULL, 0);
@@ -261,6 +313,7 @@ watchpaths(char **inpaths, int numpaths,
       }
     }
 
+    /* TODO: consider emitting the list of watched paths */
     debug_printf("Watching for %s\n", pinfos[i].path);
     pinfos[i].slashes = find_slashes(pinfos[i].path, -1, &numslashes);
     if(pinfos[i].slashes == NULL){
@@ -311,8 +364,9 @@ watchpaths(char **inpaths, int numpaths,
             }
           }
 
-          /* NOTE_DELETE might be a new file copied onto the old path,
-             needs work to follow. */
+          /*
+           * NOTE_DELETE might be a new file copied onto the old path.
+           */
           if(evt->fflags & (NOTE_DELETE | NOTE_RENAME)){
             pinfo->nextslash++;
             if(pinfo->nextslash >= pinfo->endslash){
@@ -335,6 +389,7 @@ watchpaths(char **inpaths, int numpaths,
           }
 
           if(pinfo->nextslash == pinfo->slashes){
+            /* A watched path was modified. Execute the callback. */
 /*@-noeffect@*/
             callback(evt->fflags, pinfo->index, blob, &cont);
 /*@=noeffect@*/
@@ -363,8 +418,3 @@ ERR:
   free(eventbuff);
   return ret;
 }
-
-
-
-
-
