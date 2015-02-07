@@ -1,5 +1,3 @@
-_See LICENSE file and individual source files for license information_
-
 # Foreword
 
 This repository provides three things:
@@ -170,3 +168,60 @@ reacquire a reference to the correct file should the file itself be
 deleted or renamed.
 
 Please report additional bugs to fwatch_bugs@expandedpossibilities.com
+
+
+# Possible modifications under consideration
+
+Adding a parameter to  watchpaths() to allow the caller to specify
+the mode to use in opening the file to monitor and them. This would
+allow the open file descriptor to be passed to the callback()
+function, avoiding an extraneous call to open(2).
+
+Adding a parameter to  watchpaths() to allow the caller to specify
+a timeout to trigger the callback if no modification happens after the
+specified timeframe
+
+Modifying watchpaths() to watch simultaneously all parent directories for
+modification so that a change further up the path would not be
+missed. An older version of watchpaths() did this, but it seemed an
+unnecessary complication at the time
+
+Modifying fwatch to build-in daemonization, triggered by a parameter.
+
+Modifying fwatch to echo the list of watched paths when it is first
+invoked.
+
+
+# LICENSE
+
+Copyright (c) 2015, Expanded Possibilities, Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the
+   distribution.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+
+# AUTHOR
+
+Eric Kobrin <eric_kobrin_fwatch@expandedpossibilities.com>
