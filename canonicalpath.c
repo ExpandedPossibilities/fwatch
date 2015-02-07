@@ -229,13 +229,7 @@ canonicalpath(/*@null@*/ const char *base,
   /* calculate memory used, including final NULL byte */
   oused = out + maxosize - op;
 
-  /* Inform caller of length of path as if strlen were called on
-     the return value.
-     This is intentionally done here, before any errors can occur in
-     the next block. */
-  if(used) *used = oused - 1;
-
-  debug_printf ("\n>>%zu\n",oused);
+  debug_printf ("\n>>%zu\n", oused);
   if(op > out){
     /*
      * we will have consumed more bytes than allocated in `out' IFF
@@ -244,9 +238,17 @@ canonicalpath(/*@null@*/ const char *base,
      * release the unused memory
      */
 
-    debug_printf("\nA:%p\nB:%p",(void*)op, (void*)out);
+    debug_printf("\nA:%p\nB:%p\n\n",(void*)op, (void*)out);
 
-    memmove(out, op, oused);
+    if(oused == 1){
+      oused = 2;
+      op = out;
+      out[0] = '/';
+      out[1] = '\0';
+    } else {
+      memmove(out, op, oused);
+    }
+
     /* not needed: out[oused]=0; */
 
     if(output == NULL){
@@ -261,6 +263,13 @@ canonicalpath(/*@null@*/ const char *base,
       out = op;
     }
   }
+
+  /*
+   * Inform caller of length of path as if strlen were called on
+   * the return value.
+   */
+  if(used) *used = oused - 1;
+
   free(tofree);
   return out;
 }
