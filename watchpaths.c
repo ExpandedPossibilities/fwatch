@@ -66,6 +66,11 @@
       fprintf(stderr, fmt, __VA_ARGS__); } while(0)
 #endif
 
+#ifdef O_EVTONLY
+#define OPEN_MODE O_EVTONLY
+#else
+#define OPEN_MODE O_RDONLY
+#endif
 
 /*
  * struct pathinfo
@@ -196,7 +201,7 @@ walk_to_extant_parent(struct pathinfo *pinfo)
    * exists or returs an error other than one of the ones that may go
    * away when the missing directory is recreated
    */
-  for(*pinfo->fdp = (long) open(pinfo->path, O_RDONLY);
+  for(*pinfo->fdp = (long) open(pinfo->path, OPEN_MODE);
       /* open(2) errors checked in caller */
       *pinfo->fdp == -1 &&
       (errno == ENOENT ||
@@ -208,7 +213,7 @@ walk_to_extant_parent(struct pathinfo *pinfo)
     /* temporarily truncate pinfo->path at the next slash */
     if(*pinfo->nextslash) **pinfo->nextslash = '\0';
     debug_printf("open %s: ", pinfo->path);
-    *pinfo->fdp = (long) open(pinfo->path, O_RDONLY);
+    *pinfo->fdp = (long) open(pinfo->path, OPEN_MODE);
     debug_printf("%ld\n", *pinfo->fdp);
     /* restore the slash in pinfo->path */
     if(*pinfo->nextslash) **pinfo->nextslash = '/';
@@ -233,7 +238,39 @@ walk_to_extant_parent(struct pathinfo *pinfo)
   return 0;
 }
 
-
+/*
+ * Caller documentation is in watchpaths.h
+ * Implementation discussion follows.
+ *
+ * Watchpaths attempts to monitor for changes in any one of a list of
+ * specified files. It uses the kqueue/kevent API to do so. This API
+ * does not have an option for monitoring path names, but does allow
+ * monitoring file descriptors.
+ *
+ * Several design considerations follow from this fact:
+ *
+ * 1. watchpaths() only functions properly if it is able to call
+ *    open(2) on the file. On systems where O_EVTONLY mode is
+ *    supported that open mode is used. Otherwise, O_RDONLY is used.
+ *
+ * 2. If files are renamed, such as by a "safe write" operation, work
+ *    is required to obtain the file descripter of the file now
+ *    existing at the path.
+ *
+ * 3. If a file is deleted, there is no mechanism in kqueue to watch
+ *    for its recreation. watchpaths() therefore begins watching its
+ *    parent directory for writes. When such a write is detected, the
+ *    function attempts to open the missing file again. This pattern
+ *    is repeated for each parent directory via the
+ *    walk_to_extant_parent() function defined above.
+ *
+ * In order to conserve memory, path walking is achieved not by
+ * maintaining ultiple copies of prefixes of the target path, but
+ * rather by replacing '/' characters in the target path with NUL
+ * bytes as needed. All paths are copied by watchpaths, so callers
+ * need not worry hat these changes will alter data in the caller's
+ * view.
+ */
 int
 watchpaths(char **inpaths, int numpaths,
            void (*callback) (u_int, int, void *, int *), void *blob)

@@ -51,6 +51,42 @@
 #endif
 
 /*
+ * Execute a callback whenever the contents of one of the specified
+ * paths is modified. The files described by the paths do not need to
+ * exist at the time.
+ *
+ * If one of the files is deleted, its parent directory will be
+ * monitored for deletion or modification, and so on, back up to the
+ * furthest level of the path that resides on the same device as the
+ * original path.
+ *
+ * ARGUMENTS
+ * ---------
+ *
+ * inpaths:  the array of pathnames to watch
+ *
+ * numpaths: the count of paths in `inpaths'
+ *
+ * callback: the function to invoke when one of the watch paths is
+ *           modified
+ *
+ * CALLBACK PARAMETERS
+ * -------------------
+ *
+ * u_int fflags: A bit mask describing which event triggered the
+ *               callback See list of fflags defined for EVFILT_VNODE
+ *               in kevent(2)
+ *
+ * int   index:  The index (in inpaths) of the pathname whose
+ *               modification triggered the callback invocation
+ *
+ * void  *data:  The same value as blob. It's an arbitrary value chosen
+ *               by the caller to watchpaths() and is unexamied by
+ *               watchpaths().
+ *
+ * int   *cont:  Controls the exit of watchpaths(). If the callback sets
+ *               *cont to zero, watchpaths will exit once the callback
+ *               returns.
  *
  */
 int watchpaths(char **inpaths, int numpaths,

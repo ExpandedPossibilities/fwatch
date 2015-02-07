@@ -165,4 +165,8 @@ Paths which begin with a pair of slashes have special meanings on some
 systems. `canonicalpath()` does not treat these specially and will
 remove one of the slashes.
 
+fwatch may fail to notice that a parent directory is renamed, but will
+reacquire a reference to the correct file should the file itself be
+deleted or renamed.
+
 Please report additional bugs to fwatch_bugs@expandedpossibilities.com
