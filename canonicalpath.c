@@ -71,9 +71,11 @@ canonicalpath(/*@null@*/ const char *base,
   /*@owned@*/ char *tofree = NULL;
 
   if(base == NULL){
+
 /*@-nullpass@*/
     tofree = getcwd(NULL, 0);
 /*@=nullpass@*/
+
     if(tofree == NULL){
       return NULL; /* preserve errno */
     }
@@ -112,9 +114,11 @@ canonicalpath(/*@null@*/ const char *base,
     return NULL;
   }
 
-  /* maximum output is:
-     size of rel + 1 for terminating NULL
-     plus (if base is non-null) size of base + 1 for slash */
+  /*
+   * maximum output is:
+   *  size of rel + 1 for terminating NULL
+   *  plus (if base is non-null) size of base + 1 for slash
+   */
   maxosize = (size_t) ((erel - rel) + 1 + (base==NULL?0:(ebase - base)+1));
 
   if(output == NULL){
@@ -134,30 +138,39 @@ canonicalpath(/*@null@*/ const char *base,
   /* ensure output contains final NULL */
   *op = '\0';
 
-  /* iterate backwards over the logical concatenation of base, "/", and rel,
-     without consuming memory to hold the concatenation.
-
-     targ starts off pointing at rel, switches to base when rel is consumed */
+  /*
+   * iterate backwards over the logical concatenation of base, "/", and rel,
+   * without consuming memory to hold the concatenation.
+   *
+   * targ starts off pointing at rel, switches to base when rel is consumed
+   */
 
   targ = rel;
   for(ip = erel - 1;
       ip >= targ;
       ip = targ == rel && ip == targ && base != NULL ?
         (targ = base, ebase) :  (ip - 1)){
-    /* ebase, if defined, points at the null byte at the end of base
-       the assignment below acts as if that null byte were the slash
-       between base and rel.
-       If no base is being used, then rel already starts with a slash,
-       ebase is NULL, and the conditional never takes the first branch. */
+    /*
+     * ebase, if defined, points at the null byte at the end of base
+     * the assignment below acts as if that null byte were the slash
+     * between base and rel.
+     * If no base is being used, then rel already starts with a slash,
+     * ebase is NULL, and the conditional never takes the first branch.
+     */
     c = ip == ebase ? '/' : *ip;
     /* DEBUG: printf("%c",c); */
-    /* ahead holds the number of bytes not yet emitted (because they might
-       represent "./" or "../" instructions */
+
+    /*
+     * ahead holds the number of bytes not yet emitted (because they might
+     * represent "./" or "../" instructions
+     */
     if(ahead > 0){
       if(ahead <= 3){
-        /* when ahead <=3 this might still be a path operation,
-           othwerise it just indicates a directory whose name
-           ends in .. */
+        /*
+         * when ahead <=3 this might still be a path operation,
+         * othwerise it just indicates a directory whose name
+         * ends in ..
+         */
         if(c == '/'){
           if(ahead == 1){
             continue; /* consume runs of slashes */
@@ -165,8 +178,10 @@ canonicalpath(/*@null@*/ const char *base,
             ahead = 1; /* ./ */
             continue;
           } else { /* ../ */
-            /* eat holds the number of directors to omit from output
-               due to the presence of one or more runs of "../" */
+            /*
+             * eat holds the number of directors to omit from output
+             * due to the presence of one or more runs of "../"
+             */
             eat++;
             ahead = 1;
             continue;
@@ -177,12 +192,13 @@ canonicalpath(/*@null@*/ const char *base,
           continue;
         }
       }
-      /* Flow arrives here when the bytes not yet emitted are known
-         to represent an acual part of the path an not a special
-         instruction.
-         The next step is to emit the missing bytes, which will be
-         a series of "." characters followed by the current character
-         under analysis */
+      /*
+       * Flow arrives here when the bytes not yet emitted are known to
+       *  represent an acual part of the path an not a special
+       *  instruction.  The next step is to emit the missing bytes,
+       *  which will be a series of "." characters followed by the
+       *  current character under analysis
+       */
       while(--ahead > 0){
         ounshift('.');
       }
@@ -209,16 +225,21 @@ canonicalpath(/*@null@*/ const char *base,
 
   /* DEBUG: printf ("\n>>%zu\n",oused); */
   if(op > out){
-    /* we will have consumed more bytes than allocated in `out'
-       IFF "./" or "//" or "../" are present
-       In that case, the first few bytes of `out' are garbage.
-       Move the string back to out and release the unused memory */
+    /*
+     * we will have consumed more bytes than allocated in `out' IFF
+     * "./" or "//" or "../" are present In that case, the first few
+     * bytes of `out' are garbage.  Move the string back to out and
+     * release the unused memory
+     */
+
     /* DEBUG: printf("\nA:%p\nB:%p",(void*)op, (void*)out); */
+
     memmove(out, op, oused);
     /* not needed: out[oused]=0; */
+
     if(output == NULL){
-      /* the buffer was allocated in this function and can
-         be resized */
+      /* The buffer was allocated in this function and can be resized */
+
       op = realloc(out, oused);
       if(op == NULL){
         free(tofree);
