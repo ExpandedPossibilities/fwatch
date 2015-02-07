@@ -60,11 +60,11 @@ ifdef WP_COMPLAIN
 CFLAGS += -DWP_COMPLAIN
 endif
 
-all: fwatch
+all: fwatch canname
 
 fwatch:  watchpaths.o canonicalpath.o
 
-canonicalpath_test: canonicalpath.o
+canname: canonicalpath.o
 
 depend:
 	: > $(DEPS)

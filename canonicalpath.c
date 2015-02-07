@@ -54,13 +54,6 @@
   }} while(0)
 
 /*@null@*/
-inline char *
-canpath(/*@null@*/ const char *base, /*@null@*/ const char *rel)
-{
-  return canonicalpath(base, rel, NULL, 0, NULL);
-}
-
-/*@null@*/
 char *
 canonicalpath(/*@null@*/ const char *base,
               /*@null@*/ const char *rel,

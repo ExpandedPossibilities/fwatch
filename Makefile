@@ -18,15 +18,15 @@ CFLAGS += -DWP_DEBUG
 CFLAGS += -DWP_COMPLAIN
 .endif
 
-SRCS=canonicalpath.c canonicalpath_test.c fwatch.c watchpaths.c
+SRCS=canonicalpath.c canname.c fwatch.c watchpaths.c
 DEPS=deps.mk
 
-all: fwatch
+all: fwatch canname
 
 fwatch:  watchpaths.o canonicalpath.o fwatch.c
 	$(CC) $(CFLAGS) $> -o $@
 
-canonicalpath_test: canonicalpath_test.c canonicalpath.o
+canname: canname.c canonicalpath.o
 	$(CC) $(CFLAGS) $> -o $@
 
 clean:

@@ -1,17 +1,20 @@
 # Foreword
 
-This repository provides three things:
+This repository provides four things:
 
  1. `fwatch`: A command-line utility to trigger an action when any one
     of a list of files is modified.
- 2. `watchpaths()`: A function for programs to be receive a callback when
+ 2. `canname`: A command-line utility in the spirit of `basename(1)` and
+    `dirname(1)` which returns the canonical name of its argument
+ 3. `watchpaths()`: A function for programs to be receive a callback when
     any one of a list of files is modified.
- 3. `canonicalpath()` and `canpath()`: Functions for converting relative
+ 4. `canonicalpath()` and `canpath()`: Functions for converting relative
     pathnames to absolute pathnames
 
-Each of these depends on the items that follow it. They are all
-provided under the terms of the 2-clause BSD license so that the
-components may be included with ease in other projects.
+Both `canname` and `watchpaths()` depend on `canonicalpath()`. The
+`fwatch` utility itself depends on `watchpaths()`. Everything in the
+repository is provided under the terms of the 2-clause BSD license so
+that the components may be included with ease in other projects.
 
 This project was built built for use on OpenBSD to monitor DHCP status
 changes and take action based on which lease file was modified. It

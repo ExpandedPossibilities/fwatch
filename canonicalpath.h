@@ -34,19 +34,6 @@
 #include <stddef.h>
 
 /*
- * canpath -- convert a relative path to an absolute path
- *
- * Convenience method for common use case.
- *
- * This wrapper simply calls canonicalpath as follows:
- *  canonicalpath(base, rel, NULL, 0, NULL);
- *
- * See the documentation for canonicalpath for more information
- */
-/*@null@*/ inline char* canpath (/*@null@*/ const char *base,
-                                 /*@null@*/ const char *rel);
-
-/*
  * canonicalpath -- convert a relative path to an absolute path
  *
  * Given a base path and a relative path, returns a path containing no
@@ -103,5 +90,15 @@
                                 /*@null@*/ char *output,
                                 size_t outlen,
                                 /*@null@*/ size_t *used);
+
+
+/*
+ * canpath -- convert a relative path to an absolute path
+ *
+ * Convenience macro for common use case.
+ *
+ * See the documentation for canonicalpath for more information
+ */
+#define canpath(base, rel) canonicalpath((base), (rel), NULL, 0, NULL)
 
 #endif
