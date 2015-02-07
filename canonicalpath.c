@@ -40,6 +40,20 @@
 
 #include "canonicalpath.h"
 
+#ifndef CP_DEBUG
+#define CP_DEBUG 0
+#endif
+
+#ifdef S_SPLINT_S
+#define report_error perror
+#define debug_print printf
+#define debug_printf printf
+#else
+#define debug_print(str)        debug_printf("%s",str)
+#define debug_printf(fmt, ...)  do { if(CP_DEBUG)       \
+      fprintf(stderr, fmt, __VA_ARGS__); } while(0)
+#endif
+
 #define ounshift(x)                             \
   do{                                           \
   if(eat == 0) {                                \
@@ -70,8 +84,10 @@ canonicalpath(/*@null@*/ const char *base,
   int eat = 0;
   /*@owned@*/ char *tofree = NULL;
 
-  if(base == NULL){
-
+  if(rel != NULL && rel[0] == '/'){
+    /* ignore base if rel is absolute */
+    base = NULL;
+  } else if(base == NULL) {
 /*@-nullpass@*/
     tofree = getcwd(NULL, 0);
 /*@=nullpass@*/
@@ -88,10 +104,6 @@ canonicalpath(/*@null@*/ const char *base,
     base = NULL;
   }
 
-  if(rel[0] == '/'){
-    /* ignore base if rel is absolute */
-    base = NULL;
-  }
 
   if(base == NULL){
     /* next line prevents subtraction from breaking in length calc */
@@ -158,7 +170,7 @@ canonicalpath(/*@null@*/ const char *base,
      * ebase is NULL, and the conditional never takes the first branch.
      */
     c = ip == ebase ? '/' : *ip;
-    /* DEBUG: printf("%c",c); */
+    debug_printf("%c",c);
 
     /*
      * ahead holds the number of bytes not yet emitted (because they might
@@ -223,7 +235,7 @@ canonicalpath(/*@null@*/ const char *base,
      the next block. */
   if(used) *used = oused - 1;
 
-  /* DEBUG: printf ("\n>>%zu\n",oused); */
+  debug_printf ("\n>>%zu\n",oused);
   if(op > out){
     /*
      * we will have consumed more bytes than allocated in `out' IFF
@@ -232,7 +244,7 @@ canonicalpath(/*@null@*/ const char *base,
      * release the unused memory
      */
 
-    /* DEBUG: printf("\nA:%p\nB:%p",(void*)op, (void*)out); */
+    debug_printf("\nA:%p\nB:%p",(void*)op, (void*)out);
 
     memmove(out, op, oused);
     /* not needed: out[oused]=0; */

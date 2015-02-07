@@ -52,6 +52,10 @@ ifdef FW_DEBUG
 CFLAGS += -DFW_DEBUG
 endif
 
+ifdef CP_DEBUG
+CFLAGS += -DCP_DEBUG
+endif
+
 ifdef WP_DEBUG
 CFLAGS += -DWP_DEBUG
 endif
