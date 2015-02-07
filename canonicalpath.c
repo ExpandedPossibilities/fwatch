@@ -62,16 +62,19 @@ canonicalpath(/*@null@*/ const char *base,
               /*@null@*/ size_t *used)
 {
   const char *ebase, *erel, *targ, *ip;
-  char *out, *op;
+  /*@returned@*/ char *out;
+  char *op;
   size_t oused, maxosize;
   char c;
   int ahead = 1;
   int eat = 0;
-  char *tofree = NULL;
+  /*@owned@*/ char *tofree = NULL;
 
-  if(base == NULL) {
+  if(base == NULL){
+/*@-nullpass@*/
     tofree = getcwd(NULL, 0);
-    if(tofree == NULL) {
+/*@=nullpass@*/
+    if(tofree == NULL){
       return NULL; /* preserve errno */
     }
     base = tofree;
@@ -83,18 +86,18 @@ canonicalpath(/*@null@*/ const char *base,
     base = NULL;
   }
 
-  if(rel[0] == '/') {
+  if(rel[0] == '/'){
     /* ignore base if rel is absolute */
     base = NULL;
   }
 
-  if(base == NULL) {
+  if(base == NULL){
     /* next line prevents subtraction from breaking in length calc */
     ebase = NULL;
   } else {
     /* establish a reference to the end of base */
     ebase = base + strnlen(base, PATH_MAX);
-    if(*ebase != '\0') {
+    if(*ebase != '\0'){
       free(tofree);
       errno = ENAMETOOLONG;
       return NULL;
@@ -103,7 +106,7 @@ canonicalpath(/*@null@*/ const char *base,
 
   /* establish a reference to the end of rel */
   erel = rel + strnlen(rel, PATH_MAX);
-  if(*erel != '\0') {
+  if(*erel != '\0'){
     free(tofree);
     errno = ENAMETOOLONG;
     return NULL;
@@ -112,12 +115,12 @@ canonicalpath(/*@null@*/ const char *base,
   /* maximum output is:
      size of rel + 1 for terminating NULL
      plus (if base is non-null) size of base + 1 for slash */
-  maxosize = (erel - rel) + 1 + (base==NULL?0:(ebase - base)+1);
+  maxosize = (size_t) ((erel - rel) + 1 + (base==NULL?0:(ebase - base)+1));
 
   if(output == NULL){
     /* allocate the output buffer */
     out = malloc(maxosize);
-    if(out == NULL) {
+    if(out == NULL){
       free(tofree);
       return NULL; /* preserve errno */
     }
@@ -140,7 +143,7 @@ canonicalpath(/*@null@*/ const char *base,
   for(ip = erel - 1;
       ip >= targ;
       ip = targ == rel && ip == targ && base != NULL ?
-        (targ=base, ebase) :  (ip-1)){
+        (targ = base, ebase) :  (ip - 1)){
     /* ebase, if defined, points at the null byte at the end of base
        the assignment below acts as if that null byte were the slash
        between base and rel.
@@ -168,7 +171,7 @@ canonicalpath(/*@null@*/ const char *base,
             ahead = 1;
             continue;
           }
-        } else if (c == '.') {
+        } else if (c == '.'){
           /* this supports counting "." and ".." */
           ahead++;
           continue;
@@ -213,7 +216,7 @@ canonicalpath(/*@null@*/ const char *base,
     /* DEBUG: printf("\nA:%p\nB:%p",(void*)op, (void*)out); */
     memmove(out, op, oused);
     /* not needed: out[oused]=0; */
-    if(output == NULL) {
+    if(output == NULL){
       /* the buffer was allocated in this function and can
          be resized */
       op = realloc(out, oused);
