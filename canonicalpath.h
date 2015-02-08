@@ -87,7 +87,7 @@
 
 /*@null@*/ char* canonicalpath (/*@null@*/ const char *base,
                                 /*@null@*/ const char *rel,
-                                /*@null@*/ char *output,
+                                /*@null@*/ /*@returned@*/ char *output,
                                 size_t outlen,
                                 /*@null@*/ size_t *used);
 

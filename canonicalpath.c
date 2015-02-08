@@ -54,12 +54,14 @@
       fprintf(stderr, fmt, __VA_ARGS__); } while(0)
 #endif
 
+#define freen(x) do{ free(x); (x) = NULL; } while(0)
+
 #define ounshift(x)                             \
   do{                                           \
   if(eat == 0) {                                \
     if(--op < out){                             \
-      if(output==NULL) free(out);               \
-      free(tofree);                             \
+      if(out != output ) freen(out);             \
+      freen(tofree);                             \
       errno = ERANGE;                           \
       return NULL;                              \
     } else {                                    \
@@ -71,14 +73,14 @@
 char *
 canonicalpath(/*@null@*/ const char *base,
               /*@null@*/ const char *rel,
-              /*@null@*/ char *output,
-              size_t outlen,
+              /*@null@*/ /*@returned@*/ char *output,
+              size_t outputsize,
               /*@null@*/ size_t *used)
 {
   const char *ebase, *erel, *targ, *ip;
-  /*@returned@*/ char *out;
+  char *out;
   char *op;
-  size_t oused, maxosize;
+  size_t oused, maxosize, osize;
   char c;
   int ahead = 1;
   int eat = 0;
@@ -112,7 +114,7 @@ canonicalpath(/*@null@*/ const char *base,
     /* establish a reference to the end of base */
     ebase = base + strnlen(base, PATH_MAX);
     if(*ebase != '\0'){
-      free(tofree);
+      freen(tofree);
       errno = ENAMETOOLONG;
       return NULL;
     }
@@ -121,7 +123,7 @@ canonicalpath(/*@null@*/ const char *base,
   /* establish a reference to the end of rel */
   erel = rel + strnlen(rel, PATH_MAX);
   if(*erel != '\0'){
-    free(tofree);
+    freen(tofree);
     errno = ENAMETOOLONG;
     return NULL;
   }
@@ -131,21 +133,24 @@ canonicalpath(/*@null@*/ const char *base,
    *  size of rel + 1 for terminating NULL
    *  plus (if base is non-null) size of base + 1 for slash
    */
-  maxosize = (size_t) ((erel - rel) + 1 + (base==NULL?0:(ebase - base)+1));
+  maxosize = (size_t) ((erel - rel) + 1 +
+                       (base == NULL ? 0 : (ebase - base) + 1));
 
   if(output == NULL){
     /* allocate the output buffer */
-    out = malloc(maxosize);
+    osize = maxosize;
+    out = malloc(osize);
     if(out == NULL){
-      free(tofree);
+      freen(tofree);
       return NULL; /* preserve errno */
     }
-    op = out + maxosize - 1;
   } else {
     /* use the supplied buffer */
     out = output;
-    op = out + MIN(maxosize, outlen) - 1;
+    osize = MIN(maxosize, outputsize);
   }
+
+  op = out + osize - 1;
 
   /* ensure output contains final NULL */
   *op = '\0';
@@ -160,8 +165,8 @@ canonicalpath(/*@null@*/ const char *base,
   targ = rel;
   for(ip = erel - 1;
       ip >= targ;
-      ip = targ == rel && ip == targ && base != NULL ?
-        (targ = base, ebase) :  (ip - 1)){
+      ip = (targ == rel && ip == targ && base != NULL ?
+            (targ = base, ebase) :  (ip - 1))){
     /*
      * ebase, if defined, points at the null byte at the end of base
      * the assignment below acts as if that null byte were the slash
@@ -169,7 +174,7 @@ canonicalpath(/*@null@*/ const char *base,
      * If no base is being used, then rel already starts with a slash,
      * ebase is NULL, and the conditional never takes the first branch.
      */
-    c = ip == ebase ? '/' : *ip;
+    c = ip == ebase ? '/' : *ip; /* ip cannot be null, splint is wrong */
     debug_printf("%c",c);
 
     /*
@@ -227,7 +232,7 @@ canonicalpath(/*@null@*/ const char *base,
   }
 
   /* calculate memory used, including final NULL byte */
-  oused = out + maxosize - op;
+  oused = (size_t) (out + osize - op);
 
   debug_printf ("\n>>%zu\n", oused);
   if(op > out){
@@ -251,13 +256,13 @@ canonicalpath(/*@null@*/ const char *base,
 
     /* not needed: out[oused]=0; */
 
-    if(output == NULL){
+    if(out != output){
       /* The buffer was allocated in this function and can be resized */
 
       op = realloc(out, oused);
       if(op == NULL){
-        free(tofree);
-        free(out);
+        freen(tofree);
+        freen(out);
         return NULL; /* preserve errno */
       }
       out = op;
@@ -270,6 +275,6 @@ canonicalpath(/*@null@*/ const char *base,
    */
   if(used) *used = oused - 1;
 
-  free(tofree);
+  freen(tofree);
   return out;
 }
