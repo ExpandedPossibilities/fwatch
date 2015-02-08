@@ -99,11 +99,11 @@ so I wrote my own simple functions.
 
 The source code for this project has been analyzed by using the clang
 analyzer which ships with the OS X build tools. It has also been
-analyzed by splint and contains splint annotations. These analyses
-revealed one or two actual bugs, and a slew of warnings requiring
-annotations to explicitly define how memory for certain variables was
-handled. No legitimate warnings are revealed by either clang or split
-at this time.
+analyzed by splint and contains splint annotations (which look like:
+`/*@word@*/`). These analyses revealed a small number of actual bugs,
+and a slew of warnings requiring annotations to explicitly define how
+memory for certain variables was handled. No legitimate warnings are
+revealed by either clang or split at this time.
 
 Early versions of this code used `realpath(3)` instead of my own path
 canonicalization code. This worked for watching for the creation of
