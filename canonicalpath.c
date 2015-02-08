@@ -54,16 +54,12 @@
       fprintf(stderr, fmt, __VA_ARGS__); } while(0)
 #endif
 
-#define freen(x) do{ free(x); (x) = NULL; } while(0)
-
 #define ounshift(x)                             \
   do{                                           \
   if(eat == 0) {                                \
     if(--op < out){                             \
-      if(out != output ) freen(out);             \
-      freen(tofree);                             \
       errno = ERANGE;                           \
-      return NULL;                              \
+      goto ERR;                                 \
     } else {                                    \
       *op=(x);                                  \
     }                                           \
@@ -78,7 +74,7 @@ canonicalpath(/*@null@*/ const char *base,
               /*@null@*/ size_t *used)
 {
   const char *ebase, *erel, *targ, *ip;
-  char *out;
+  char *out = NULL;
   char *op;
   size_t oused, maxosize, osize;
   char c;
@@ -95,7 +91,7 @@ canonicalpath(/*@null@*/ const char *base,
 /*@=nullpass@*/
 
     if(tofree == NULL){
-      return NULL; /* preserve errno */
+      goto ERR;
     }
     base = tofree;
   }
@@ -114,18 +110,16 @@ canonicalpath(/*@null@*/ const char *base,
     /* establish a reference to the end of base */
     ebase = base + strnlen(base, PATH_MAX);
     if(*ebase != '\0'){
-      freen(tofree);
       errno = ENAMETOOLONG;
-      return NULL;
+      goto ERR;
     }
   }
 
   /* establish a reference to the end of rel */
   erel = rel + strnlen(rel, PATH_MAX);
   if(*erel != '\0'){
-    freen(tofree);
     errno = ENAMETOOLONG;
-    return NULL;
+    goto ERR;
   }
 
   /*
@@ -141,8 +135,7 @@ canonicalpath(/*@null@*/ const char *base,
     osize = maxosize;
     out = malloc(osize);
     if(out == NULL){
-      freen(tofree);
-      return NULL; /* preserve errno */
+      goto ERR;
     }
   } else {
     /* use the supplied buffer */
@@ -254,16 +247,14 @@ canonicalpath(/*@null@*/ const char *base,
       memmove(out, op, oused);
     }
 
-    /* not needed: out[oused]=0; */
-
+    /*
+     * splint thinks out aliases output, but the conditional disagrees.
+     */
     if(out != output){
       /* The buffer was allocated in this function and can be resized */
-
       op = realloc(out, oused);
       if(op == NULL){
-        freen(tofree);
-        freen(out);
-        return NULL; /* preserve errno */
+        goto ERR;
       }
       out = op;
     }
@@ -275,6 +266,11 @@ canonicalpath(/*@null@*/ const char *base,
    */
   if(used) *used = oused - 1;
 
-  freen(tofree);
+  free(tofree);
   return out;
+
+ ERR:
+  free(tofree);
+  if(output != out)  free(out);
+  return NULL; /* errno is set by canonicalpath or a library function */
 }
