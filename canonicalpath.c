@@ -230,7 +230,7 @@ canonicalpath(/*@null@*/ const char *base,
   debug_printf("\n>>%zu\n", oused);
   if(op > out){
     /*
-     * we will have consumed more bytes than allocated in `out' IFF
+     * we will have consumed more bytes than a in `out' IFF
      * "./" or "//" or "../" are present In that case, the first few
      * bytes of `out' are garbage.  Move the string back to out and
      * release the unused memory
@@ -241,8 +241,8 @@ canonicalpath(/*@null@*/ const char *base,
     if(oused == 1){
       oused = 2;
       op = out;
-      out[0] = '/';
-      out[1] = '\0';
+      op[0] = '/';
+      op[1] = '\0';
     } else {
       memmove(out, op, oused);
     }
