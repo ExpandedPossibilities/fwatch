@@ -85,7 +85,7 @@ canonicalpath(/*@null@*/ const char *base,
   if(rel != NULL && rel[0] == '/'){
     /* ignore base if rel is absolute */
     base = NULL;
-  } else if(base == NULL) {
+  } else if(base == NULL){
 /*@-nullpass@*/
     tofree = getcwd(NULL, 0);
 /*@=nullpass@*/
@@ -196,7 +196,7 @@ canonicalpath(/*@null@*/ const char *base,
             ahead = 1;
             continue;
           }
-        } else if (c == '.'){
+        } else if(c == '.'){
           /* this supports counting "." and ".." */
           ahead++;
           continue;
@@ -227,7 +227,7 @@ canonicalpath(/*@null@*/ const char *base,
   /* calculate memory used, including final NULL byte */
   oused = (size_t) (out + osize - op);
 
-  debug_printf ("\n>>%zu\n", oused);
+  debug_printf("\n>>%zu\n", oused);
   if(op > out){
     /*
      * we will have consumed more bytes than allocated in `out' IFF
@@ -236,7 +236,7 @@ canonicalpath(/*@null@*/ const char *base,
      * release the unused memory
      */
 
-    debug_printf("\nA:%p\nB:%p\n\n",(void*)op, (void*)out);
+    debug_printf("\nA:%p\nB:%p\n\n", (void*)op, (void*)out);
 
     if(oused == 1){
       oused = 2;

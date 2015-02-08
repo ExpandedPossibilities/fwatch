@@ -56,7 +56,7 @@ main(int argc, char **argv)
   }
 
   pth = canpath(NULL, argv[1]);
-  if(pth == NULL) err(1, "Failed to calculate canonical path.");
+  if(pth == NULL) err(1, "Failed to calculate canonical path");
   printf("%s\n", pth);
   free(pth);
 
