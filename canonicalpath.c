@@ -238,7 +238,12 @@ canonicalpath(/*@null@*/ const char *base,
 
     debug_printf("\nA:%p\nB:%p\n\n", (void*)op, (void*)out);
 
-    if(oused == 1){
+    if(oused == 1){ /* more ..'s exist than parent directores */
+      if(osize < 2) {
+        /* requires enough space to return "/\0" */
+        errno = ERANGE;
+        goto ERR;
+      }
       oused = 2;
       op = out;
       op[0] = '/';
@@ -248,7 +253,7 @@ canonicalpath(/*@null@*/ const char *base,
     }
 
     /*
-     * splint thinks out aliases output, but the conditional disagrees.
+     * splint thinks `out' aliases `output', but the conditional disagrees.
      */
     if(out != output){
       /* The buffer was allocated in this function and can be resized */
