@@ -46,19 +46,27 @@ int
 main(int argc, char **argv)
 {
   char *pth = NULL;
+  char *base = NULL;
+  int i;
 
-  if(argc < 1
+  if(argc < 2
      || strncmp(argv[1],"--help", 6) == 0
      || strncmp(argv[1],"-h", 2) == 0){
-    printf("USAGE: canname PATH\n"
-           "Writes a canonicalized version of PATH to standard output\n");
+    printf("USAGE: canname [BASE] PATH [PATH2 ...]\n"
+           "Writes a canonicalized version of each PATH, relative to current\n"
+	   "working directory or BASE, to standard output.\n");
     return 2;
   }
 
-  pth = canpath(NULL, argv[1]);
-  if(pth == NULL) err(1, "Failed to calculate canonical path");
-  printf("%s\n", pth);
-  free(pth);
+  if(argc >= 3){
+    base = argv[1];
+  }
 
+  for( i = base == NULL ? 1 : 2; i < argc ; i++) {
+    pth = canpath(base, argv[i]);
+    if(pth == NULL) err(1, "Failed to calculate canonical path");
+    printf("%s\n", pth);
+    free(pth);
+  }
   return 0;
 }
