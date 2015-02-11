@@ -82,6 +82,11 @@ canonicalpath(/*@null@*/ const char *base,
   int eat = 0;
   /*@owned@*/ char *tofree = NULL;
 
+  if(output != NULL && outputsize < 1){
+    errno = ERANGE;
+    goto ERR;
+  }
+
   if(rel != NULL && rel[0] == '/'){
     /* ignore base if rel is absolute */
     base = NULL;

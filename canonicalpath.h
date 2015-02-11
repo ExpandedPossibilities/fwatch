@@ -57,7 +57,8 @@
  * returned, returns NULL and sets errno to ERANGE. The content of
  * output is undefined in this case. Note that since the real number
  * of bytes needed is not knowable in advance, substantial work may
- * have been done before the size mismatch is discovered.
+ * have been done before the size mismatch is discovered. If `output'
+ * is used and no errors occured, returns `output'.
  *
  * Stores number of bytes actually used in `*used' if `used' is
  * non-NULL.
@@ -67,7 +68,7 @@
  *
  * If successful, returns a pointer to a canonicalized version of the
  * `rel' relative to `base' (or to the current working directory if
- * `base' is NULL. If any error occurs, returns NULL and ensures that
+ * `base' is NULL). If any error occurs, returns NULL and ensures that
  * a useful value is present in errno.
  *
  *
@@ -77,8 +78,9 @@
  * [ENAMETOOLONG]    The `base' or `rel' parameters contain no NUL
  *                   bytes within PATH_MAX bytes.
  *
- * [ERANGE]          The `output' parameter was supplied and the
- *                   canonical path is longer than `outlen'
+ * [ERANGE]          The `output' parameter was supplied and either:
+ *                    A) the canonical path is longer than `outlen'
+ *                    B) `outlen' is zero
  *
  * canonicalpath may additionally return NULL and set errno to any
  * of the values specified by the library functions malloc(3),

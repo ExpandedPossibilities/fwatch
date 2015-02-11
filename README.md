@@ -29,7 +29,7 @@ scratches a similar itch and does run on Linux.
 
 The base directory contains the source files, the GNUmakefile, the (bsd)
 Makefile. *The binaries are built in the obj directory.* A patch to
-use `autoconf` or similar is welcome.
+use `autoconf` or `cmake` is welcome.
 
 Normal: `make`
 
@@ -100,10 +100,14 @@ so I wrote my own simple functions.
 The source code for this project has been analyzed by using the clang
 analyzer which ships with the OS X build tools. It has also been
 analyzed by splint and contains splint annotations (which look like:
-`/*@word@*/`). These analyses revealed a small number of actual bugs,
-and a slew of warnings requiring annotations to explicitly define how
-memory for certain variables was handled. No legitimate warnings are
-revealed by either clang or split at this time.
+`/*@word@*/`). These two analyses revealed a small number of actual
+bugs, and a slew of warnings requiring annotations to explicitly
+define how memory for certain variables was handled. No legitimate
+warnings are revealed by either clang or splint at this time. Finally,
+some subsections of the code which could run on Linux were analyzed
+using klee and the single error found was fixed. The klee analysis is
+more thorough than the others, but could only be applied to a small
+subset of the codebase.
 
 Early versions of this code used `realpath(3)` instead of my own path
 canonicalization code. This worked for watching for the creation of
