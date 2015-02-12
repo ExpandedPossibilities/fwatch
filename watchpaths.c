@@ -139,7 +139,7 @@ static char **
 find_slashes(char *path, int len, /*@out@*/ size_t *sout)
 {
   size_t max = 0;
-  size_t i = 0;
+  int i = 0;
   size_t count = 1;
   char *p = path;
   char **out = NULL;
