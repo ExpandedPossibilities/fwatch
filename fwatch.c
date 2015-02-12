@@ -77,7 +77,7 @@ struct runinfo {
 static void
 runscript(/*@unused@*/ u_int flags, int idx, void *data, int *cont)
 {
-  pid_t pid;
+  pid_t pid, waitok;
   int status = 0, exitcode = 0;
   struct runinfo *info = data;
 
@@ -114,19 +114,26 @@ runscript(/*@unused@*/ u_int flags, int idx, void *data, int *cont)
 
     err(2, "failed to exec '%s'", info->c_argv[0]); /* should not reach */
   } else {
-    (void) waitpid(pid, &status, 0);
-    exitcode = WEXITSTATUS(status);
+    while((waitok = waitpid(pid, &status, 0)) == -1 && errno == EINTR);
+    if(waitok == -1){
+      /* an error other than EINTR occurred */
+#ifdef FW_DEBUG
+      warn("Unable to wait for pid %d", pid);
+#endif
+    } else {
+      exitcode = WEXITSTATUS(status);
 
 #ifdef FW_DEBUG
-    printf("Exit Code: %d\n", exitcode);
+      printf("Exit Code: %d\n", exitcode);
 #endif
 
-    /*
-     * if the utility exited with a code other than zero, tell
-     *  watchpaths to stop watching
-     */
-    if(exitcode != 0){
-      *cont = 0;
+      /*
+       * if the utility exited with a code other than zero, tell
+       *  watchpaths to stop watching
+       */
+      if(exitcode != 0){
+        *cont = 0;
+      }
     }
   }
 }
