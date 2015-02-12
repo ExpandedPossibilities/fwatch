@@ -49,14 +49,14 @@
 #define debug_print printf
 #define debug_printf printf
 #else
-#define debug_print(str)        debug_printf("%s",str)
+#define debug_print(str)        debug_printf("%s", str)
 #define debug_printf(fmt, ...)  do { if(CP_DEBUG)       \
       fprintf(stderr, fmt, __VA_ARGS__); } while(0)
 #endif
 
 #define ounshift(x)                             \
   do{                                           \
-  if(eat == 0) {                                \
+  if(eat == 0){                                 \
     if(--op < out){                             \
       errno = ERANGE;                           \
       goto ERR;                                 \
@@ -173,7 +173,7 @@ canonicalpath(/*@null@*/ const char *base,
      * ebase is NULL, and the conditional never takes the first branch.
      */
     c = ip == ebase ? '/' : *ip; /* ip cannot be null, splint is wrong */
-    debug_printf("%c",c);
+    debug_printf("%c", c);
 
     /*
      * ahead holds the number of bytes not yet emitted (because they might
@@ -244,7 +244,7 @@ canonicalpath(/*@null@*/ const char *base,
     debug_printf("\nA:%p\nB:%p\n\n", (void*)op, (void*)out);
 
     if(oused == 1){ /* more ..'s exist than parent directores */
-      if(osize < 2) {
+      if(osize < 2){
         /* requires enough space to return "/\0" */
         errno = ERANGE;
         goto ERR;
@@ -279,7 +279,7 @@ canonicalpath(/*@null@*/ const char *base,
   free(tofree);
   return out;
 
- ERR:
+ERR:
   free(tofree);
   if(output != out)  free(out);
   return NULL; /* errno is set by canonicalpath or a library function */

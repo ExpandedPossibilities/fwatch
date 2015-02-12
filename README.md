@@ -105,9 +105,9 @@ bugs, and a slew of warnings requiring annotations to explicitly
 define how memory for certain variables was handled. No legitimate
 warnings are revealed by either clang or splint at this time. Finally,
 some subsections of the code which could run on Linux were analyzed
-using klee and the single error found was fixed. The klee analysis is
-more thorough than the others, but could only be applied to a small
-subset of the codebase.
+using klee and the issues found were fixed. The klee analysis is more
+thorough than the others, but could only be applied to a small subset
+of the codebase.
 
 Early versions of this code used `realpath(3)` instead of my own path
 canonicalization code. This worked for watching for the creation of

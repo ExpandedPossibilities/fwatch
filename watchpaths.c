@@ -187,7 +187,7 @@ walk_to_extant_parent(struct pathinfo *pinfo)
   struct stat finfo;
 
   /*
-   * start at the leaf every time incase multiple path elements were
+   * start at the leaf every time in case multiple path elements were
    * created at once, such as by mv
    */
   pinfo->nextslash = pinfo->slashes;
