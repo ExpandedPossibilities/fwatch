@@ -207,8 +207,10 @@ walk_to_extant_parent(struct pathinfo *pinfo)
       (errno == ENOENT ||
        errno == ENOTDIR ||
        errno == EACCES ||
-       errno == EPERM) && pinfo->nextslash < pinfo->endslash;
+       errno == EPERM ||
+       errno == EINTR) && pinfo->nextslash < pinfo->endslash;
       pinfo->nextslash++){
+    if(errno == EINTR) continue;
 
     /* temporarily truncate pinfo->path at the next slash */
     if(*pinfo->nextslash) **pinfo->nextslash = '\0';
