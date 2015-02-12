@@ -44,7 +44,7 @@
 
 #ifdef S_SPLINT_S
 /*
- * When running splint, the defaul definitions for these
+ * When running splint, the default definitions for these
  * functions result in improper warnings
  */
 
@@ -179,8 +179,8 @@ main(int argc, char **argv)
   }
 
   /*
-   * Consume arguments until encoutering "{}", ";", or the end of the
-   * string. If "{}" is encoutered, its index is stored in
+   * Consume arguments until encountering "{}", ";", or the end of the
+   * string. If "{}" is encountered, its index is stored in
    * info.replace. The last instance wins.
    *
    * The utility arguments are constructed in this fashion rather than

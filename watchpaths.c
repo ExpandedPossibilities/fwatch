@@ -198,7 +198,7 @@ walk_to_extant_parent(struct pathinfo *pinfo)
 
   /*
    * loop over each parent directory until one is encountered that
-   * exists or returs an error other than one of the ones that may go
+   * exists or returns an error other than one of the ones that may go
    * away when the missing directory is recreated
    */
   for(*pinfo->fdp = (long) open(pinfo->path, OPEN_MODE);
@@ -254,7 +254,7 @@ walk_to_extant_parent(struct pathinfo *pinfo)
  *    supported that open mode is used. Otherwise, O_RDONLY is used.
  *
  * 2. If files are renamed, such as by a "safe write" operation, work
- *    is required to obtain the file descripter of the file now
+ *    is required to obtain the file descriptor of the file now
  *    existing at the path.
  *
  * 3. If a file is deleted, there is no mechanism in kqueue to watch
@@ -265,7 +265,7 @@ walk_to_extant_parent(struct pathinfo *pinfo)
  *    walk_to_extant_parent() function defined above.
  *
  * In order to conserve memory, path walking is achieved not by
- * maintaining ultiple copies of prefixes of the target path, but
+ * maintaining multiple copies of prefixes of the target path, but
  * rather by replacing '/' characters in the target path with NUL
  * bytes as needed. All paths are copied by watchpaths, so callers
  * need not worry hat these changes will alter data in the caller's
@@ -362,7 +362,7 @@ watchpaths(char **inpaths, int numpaths,
 /*@=nullpass@*/
         if(basepath == NULL){
           report_error("Unable to find current path, needed for watching"
-                       " relaive paths");
+                       " relative paths");
           goto ERR;
         }
       }

@@ -81,7 +81,7 @@
  *               modification triggered the callback invocation
  *
  * void  *data:  The same value as blob. It's an arbitrary value chosen
- *               by the caller to watchpaths() and is unexamied by
+ *               by the caller to watchpaths() and is unexamined by
  *               watchpaths().
  *
  * int   *cont:  Controls the exit of watchpaths(). If the callback sets

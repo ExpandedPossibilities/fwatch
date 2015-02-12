@@ -58,7 +58,7 @@
  * output is undefined in this case. Note that since the real number
  * of bytes needed is not knowable in advance, substantial work may
  * have been done before the size mismatch is discovered. If `output'
- * is used and no errors occured, returns `output'.
+ * is used and no errors occurred, returns `output'.
  *
  * Stores number of bytes actually used in `*used' if `used' is
  * non-NULL.

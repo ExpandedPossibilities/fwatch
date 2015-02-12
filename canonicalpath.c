@@ -183,7 +183,7 @@ canonicalpath(/*@null@*/ const char *base,
       if(ahead <= 3){
         /*
          * when ahead <=3 this might still be a path operation,
-         * othwerise it just indicates a directory whose name
+         * otherwise it just indicates a directory whose name
          * ends in ..
          */
         if(c == '/'){
@@ -209,10 +209,10 @@ canonicalpath(/*@null@*/ const char *base,
       }
       /*
        * Flow arrives here when the bytes not yet emitted are known to
-       *  represent an acual part of the path an not a special
-       *  instruction.  The next step is to emit the missing bytes,
-       *  which will be a series of "." characters followed by the
-       *  current character under analysis
+       * represent an actual part of the path an not a special
+       * instruction.  The next step is to emit the missing bytes,
+       * which will be a series of "." characters followed by the
+       * current character under analysis
        */
       while(--ahead > 0){
         ounshift('.');
@@ -243,7 +243,7 @@ canonicalpath(/*@null@*/ const char *base,
 
     debug_printf("\nA:%p\nB:%p\n\n", (void*)op, (void*)out);
 
-    if(oused == 1){ /* more ..'s exist than parent directores */
+    if(oused == 1){ /* more ..'s exist than parent directories */
       if(osize < 2){
         /* requires enough space to return "/\0" */
         errno = ERANGE;
