@@ -193,7 +193,7 @@ walk_to_extant_parent(struct pathinfo *pinfo)
   pinfo->nextslash = pinfo->slashes;
   if(*pinfo->fdp >= 0){
     /* don't leak file descriptors */
-    (void) close((int)*pinfo->fdp);
+    while(-1 == close((int)*pinfo->fdp) && errno == EINTR);
   }
 
   /*
