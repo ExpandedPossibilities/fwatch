@@ -50,8 +50,8 @@ main(int argc, char **argv)
   int i;
 
   if(argc < 2
-     || strncmp(argv[1],"--help", 6) == 0
-     || strncmp(argv[1],"-h", 2) == 0){
+     || strncmp(argv[1], "--help", 6) == 0
+     || strncmp(argv[1], "-h", 2) == 0){
     printf("USAGE: canname [BASE] PATH [PATH2 ...]\n"
            "Writes a canonicalized version of each PATH, relative to current\n"
 	   "working directory or BASE, to standard output.\n");

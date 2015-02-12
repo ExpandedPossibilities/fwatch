@@ -94,9 +94,11 @@ runscript(/*@unused@*/ u_int flags, int idx, void *data, int *cont)
   pid = fork();
   if(pid == 0){
     if(info->replace >= 0){
-      /* replace the placeholder in c_argv with a pointer to the
-         pathname of the file whose modification triggered the
-         callback */
+      /*
+       * Replace the placeholder in c_argv with a pointer to the
+       * pathname of the file whose modification triggered the
+       * callback
+       */
       info->c_argv[info->replace] = info->files[idx];
     }
 
@@ -119,8 +121,10 @@ runscript(/*@unused@*/ u_int flags, int idx, void *data, int *cont)
     printf("Exit Code: %d\n", exitcode);
 #endif
 
-    /* if the utility exited with a code other than zero, tell
-       watchpaths to stop watching */
+    /*
+     * if the utility exited with a code other than zero, tell
+     *  watchpaths to stop watching
+     */
     if(exitcode != 0){
       *cont = 0;
     }
@@ -236,6 +240,3 @@ main(int argc, char **argv)
   /* invoke runscript() whenever a path in info.files is modified */
   return watchpaths(info.files, fcount, runscript, &info);
 }
-
-
-
