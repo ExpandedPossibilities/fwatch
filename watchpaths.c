@@ -59,11 +59,14 @@
 #define report_error perror
 #define debug_print printf
 #define debug_printf printf
+
+typedef /*@null@*/ char* nullcharp_t;
 #else
 #define report_error(x)         do { if(WP_COMPLAIN) perror(x); } while(0)
 #define debug_print(str)        debug_printf("%s",str)
 #define debug_printf(fmt, ...)  do { if(WP_DEBUG)       \
       fprintf(stderr, fmt, __VA_ARGS__); } while(0)
+#define nullcharp_t char *
 #endif
 
 #ifdef O_EVTONLY
@@ -95,9 +98,9 @@
 struct pathinfo {
   dev_t dev;
   /*@owned@*/ char *path;
-  /*@owned@*/ char **slashes;
-  /*@dependent@*/ char **nextslash;
-  /*@dependent@*/ char **endslash;
+  /*@owned@*/ nullcharp_t *slashes;
+  /*@dependent@*/ nullcharp_t *nextslash;
+  /*@dependent@*/ nullcharp_t *endslash;
   /*@dependent@*/ struct kevent *ke;
   int index;
   /*@dependent@*/ long *fdp;
@@ -105,7 +108,7 @@ struct pathinfo {
 
 
 /*@null@*/
-static char **find_slashes(char *path, int len, /*@out@*/ size_t *sout);
+static nullcharp_t *find_slashes(char *path, int len, /*@out@*/ size_t *sout);
 
 static int    walk_to_extant_parent(struct pathinfo *pinfo);
 
@@ -135,14 +138,14 @@ static int    walk_to_extant_parent(struct pathinfo *pinfo);
  */
 
 /*@null@*/
-static char **
+static nullcharp_t *
 find_slashes(char *path, int len, /*@out@*/ size_t *sout)
 {
   size_t max = 0;
   size_t i = 0;
   size_t count = 1;
   char *p = path;
-  char **out = NULL;
+  nullcharp_t *out = NULL;
 
   /* count the number of slashes */
   max = len > 0 ? (size_t) len : PATH_MAX;
@@ -152,7 +155,7 @@ find_slashes(char *path, int len, /*@out@*/ size_t *sout)
     }
   }
 
-  out = reallocarray(NULL, count, sizeof(char *));
+  out = reallocarray(NULL, count, sizeof(nullcharp_t ));
   if(out == NULL){
     *sout = 0;
     return NULL; /* keeps errno */
