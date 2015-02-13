@@ -159,11 +159,12 @@ find_slashes(char *path, int len, /*@out@*/ size_t *sout)
   }
 
   p = path;
-
-  out[count - 1] = p; /* count is always at least 1 */
-  for(i = count - 2; i > 0; i--){
-    do { p++; } while(*p != '/');
-    out[i] = p;
+  /* count is always at least 1 */
+  for(i = count - 1; i > 0; i--){
+    while(*p != '/') {
+      p++;
+    }
+    out[i] = p++;
   }
   out[0] = NULL; /* hack to detect slash record for leaf */
   *sout = count;
