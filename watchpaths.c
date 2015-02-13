@@ -155,7 +155,7 @@ find_slashes(char *path, int len, /*@out@*/ size_t *sout)
     }
   }
 
-  out = reallocarray(NULL, count, sizeof(nullcharp_t ));
+  out = reallocarray(NULL, count, sizeof(nullcharp_t));
   if(out == NULL){
     *sout = 0;
     return NULL; /* keeps errno */
@@ -164,7 +164,7 @@ find_slashes(char *path, int len, /*@out@*/ size_t *sout)
   p = path;
   /* count is always at least 1 */
   for(i = count - 1; i > 0; i--){
-    while(*p != '/') {
+    while(*p != '/'){
       p++;
     }
     out[i] = p++;
