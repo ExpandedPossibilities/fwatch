@@ -139,13 +139,13 @@ static char **
 find_slashes(char *path, int len, /*@out@*/ size_t *sout)
 {
   size_t max = 0;
-  int i = 0;
+  size_t i = 0;
   size_t count = 1;
   char *p = path;
   char **out = NULL;
 
   /* count the number of slashes */
-  max = len >= 0 ? (size_t) len : PATH_MAX;
+  max = len > 0 ? (size_t) len : PATH_MAX;
   while(i < max && *p != '\0'){
     if(*(p++) == '/'){
       count++;
@@ -378,7 +378,7 @@ watchpaths(char **inpaths, int numpaths,
 
     /* TODO: consider emitting the list of watched paths */
     debug_printf("Watching for %s\n", pinfos[i].path);
-    pinfos[i].slashes = find_slashes(pinfos[i].path, -1, &numslashes);
+    pinfos[i].slashes = find_slashes(pinfos[i].path, 0, &numslashes);
     if(pinfos[i].slashes == NULL){
       report_error("Unable to allocate space to track slashes in pathname");
       goto ERR;
