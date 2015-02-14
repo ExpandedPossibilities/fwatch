@@ -172,7 +172,9 @@ canonicalpath(/*@null@*/ const char *base,
      * If no base is being used, then rel already starts with a slash,
      * ebase is NULL, and the conditional never takes the first branch.
      */
+/*@-nullderef@*/
     c = ip == ebase ? '/' : *ip; /* ip cannot be null, splint is wrong */
+/*@=nullderef@*/
     debug_printf("%c", c);
 
     /*
@@ -257,12 +259,14 @@ canonicalpath(/*@null@*/ const char *base,
       memmove(out, op, oused);
     }
 
-    /*
-     * splint thinks `out' aliases `output', but the conditional disagrees.
-     */
     if(out != output){
       /* The buffer was allocated in this function and can be resized */
+/*@-temptrans@*/
+      /*
+       * splint thinks `out' aliases `output', but the conditional disagrees.
+       */
       op = realloc(out, oused);
+/*@=temptrans@*/
       if(op == NULL){
         goto ERR;
       }
@@ -280,7 +284,13 @@ canonicalpath(/*@null@*/ const char *base,
   return out;
 
 ERR:
+/*@-usereleased -temptrans@*/
+  /* splint fails to notice the return above and calls this a double-free */
   free(tofree);
+  /* splint thinks `out' aliases `output', but the conditional disagrees. */
   if(output != out)  free(out);
-  return NULL; /* errno is set by canonicalpath or a library function */
+/*@-temptrans =usereleased@*/
+
+  /* NOTE: errno has been set by canonicalpath or a library function */
+  return NULL;
 }
