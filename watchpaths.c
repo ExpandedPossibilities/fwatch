@@ -60,6 +60,11 @@
 #define debug_print printf
 #define debug_printf printf
 
+/* splint fails to recognize the struct unless defined here */
+struct kevent { unsigned int *ident; short filter; unsigned short flags;
+  unsigned int fflags; long data; void *udata;
+};
+
 typedef /*@null@*/ char* nullcharp_t;
 #else
 #define report_error(x)         do { if(WP_COMPLAIN) perror(x); } while(0)
@@ -419,7 +424,7 @@ watchpaths(char **inpaths, int numpaths,
     if(eventcount > 0){
       for(; evt < &eventbuff[eventcount]; evt++){
         if(evt->flags & EV_ERROR){
-          errno = evt->data;
+          errno = (int) evt->data;
           report_error("error in event list");
           /* exit to stop loops */
           goto ERR;
@@ -434,7 +439,7 @@ watchpaths(char **inpaths, int numpaths,
             if(*pinfo->nextslash) **pinfo->nextslash = '/';
 
             for(i = 0; i < numtypes; i++){
-              if(evt->fflags & types[i]){
+              if(0 != (evt->fflags & types[i])){
                 debug_printf("--Matched: %s\n", type_names[i]);
               }
             }
