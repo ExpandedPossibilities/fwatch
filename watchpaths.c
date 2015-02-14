@@ -60,9 +60,11 @@
 #define debug_print printf
 #define debug_printf printf
 
-/* splint fails to recognize the struct unless defined here */
-struct kevent { unsigned int *ident; short filter; unsigned short flags;
-  unsigned int fflags; long data; void *udata;
+/* types vary by architecture, this is correct enough for splint */
+struct kevent {
+  unsigned int ident; short filter; unsigned short flags;
+  unsigned int fflags; long data;
+  /*@dependent@*/ void *udata;
 };
 
 typedef /*@null@*/ char* nullcharp_t;
@@ -439,7 +441,7 @@ watchpaths(char **inpaths, int numpaths,
             if(*pinfo->nextslash) **pinfo->nextslash = '/';
 
             for(i = 0; i < numtypes; i++){
-              if(0 != (evt->fflags & types[i])){
+              if(0 != (evt->fflags & types[i])){ /* '0 != ...' for splint */
                 debug_printf("--Matched: %s\n", type_names[i]);
               }
             }
