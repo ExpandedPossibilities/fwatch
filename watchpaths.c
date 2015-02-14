@@ -117,6 +117,11 @@ static int    walk_to_extant_parent(struct pathinfo *pinfo);
  *
  * Returns an array of pointers to the slashes in the path argument.
  *
+ * This is similar to what one might achieve by running strsep(3) in a
+ * loop. The major differences are the safety imparted by the length
+ * parameter and that NUL-byte writing is left for the caller to
+ * perform when appropriate .
+ *
  * The caller sets the value at one of the pointers to '\0' in order
  * to "truncate" the path string at a particular parent directory.
  *
@@ -273,9 +278,10 @@ walk_to_extant_parent(struct pathinfo *pinfo)
  * In order to conserve memory, path walking is achieved not by
  * maintaining multiple copies of prefixes of the target path, but
  * rather by replacing '/' characters in the target path with NUL
- * bytes as needed. All paths are copied by watchpaths, so callers
- * need not worry hat these changes will alter data in the caller's
- * view.
+ * bytes as needed, similar to the operation of strsep(3).
+ *
+ * All paths are copied by watchpaths, so callers need not worry hat
+ * these changes will alter data in the caller's view.
  */
 int
 watchpaths(char **inpaths, int numpaths,
