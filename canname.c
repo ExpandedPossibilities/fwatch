@@ -54,7 +54,9 @@ main(int argc, char **argv)
      || strncmp(argv[1], "-h", 2) == 0){
     printf("USAGE: canname [BASE] PATH [PATH2 ...]\n"
            "Writes a canonicalized version of each PATH, relative to current\n"
-	   "working directory or BASE, to standard output.\n");
+	   "working directory or BASE, to standard output.\n"
+           "If PATH starts with a slash, BASE is ignored.\n"
+           "If BASE is supplied but empty, it is treated as \"/\"\n");
     return 2;
   }
 
