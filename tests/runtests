@@ -51,7 +51,7 @@ for t in $TESTS; do
       while read base rel exp; do
         [ "$base" = 'NONE' ] && base='';
         got=$("$BIN_DIR/canname" "$base" "$rel");
-        testit test "$got" = "$exp" || echo ">$base< >$rel< >$exp< >>$got";
+        testit test "$got" = "$exp" || echo "'$base' '$rel' '$exp' '$got'";
       done < "$TEST_DIR/cannames";;
     t_fwatch_help)
       for h in '--help' '-h'; do
