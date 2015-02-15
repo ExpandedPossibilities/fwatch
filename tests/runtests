@@ -6,7 +6,7 @@ shift;
 
 TESTS=$@;
 
-ALL_TESTS='t_findslashes t_fwatch_help'
+ALL_TESTS='t_findslashes t_fwatch_help t_canname'
 
 if [ -z "$TESTS" ]; then
   TESTS="$ALL_TESTS"
@@ -20,9 +20,11 @@ function testit() {
   if "$@"; then
     STPASS=`expr $STPASS + 1`;
     printf 1;
+    return 0;
   else
     STFAIL=`expr $STFAIL + 1`;
     printf 0;
+    return 1;
   fi
 }
 
@@ -36,14 +38,21 @@ for t in $TESTS; do
                /foo/bar/baz \
                //foo/bar/baz \
                /foo//bar/baz \
+               /foo/bar/baz/ \
+               //foo/bar/baz// \
+               /foo//bar/baz// \
                foo \
                ' /foo' \
                'foo/ /' \
                '' ; do
         testit $TEST_DIR/t_findslashes "$p"
       done;;
-    t_canpath)
-      echo notready;;
+    t_canname)
+      while read base rel exp; do
+        [ "$base" = 'NONE' ] && base='';
+        got=$("$BIN_DIR/canname" "$base" "$rel");
+        testit test "$got" = "$exp" || echo ">$base< >$rel< >$exp< >>$got";
+      done < "$TEST_DIR/cannames";;
     t_fwatch_help)
       for h in '--help' '-h'; do
         testit eval "$BIN_DIR/fwatch $h | grep -q Usage"

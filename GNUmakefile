@@ -81,7 +81,10 @@ tests/runtests: $(SRCDIR)/tests/runtests
 tests:
 	mkdir -p $@
 
-test: tests tests/runtests $(TEST_E)
+tests/cannames: $(SRCDIR)/tests/genpaths.pl tests
+	$< > $@
+
+test: all tests tests/runtests tests/cannames $(TEST_E)
 	tests/runtests `pwd`
 
 depend:
