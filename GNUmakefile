@@ -33,7 +33,9 @@ SRCDIR=..
 vpath %c $(SRCDIR)
 vpath %h $(SRCDIR)
 
-SRCS=$(wildcard $(SRCDIR)/*.c)
+TEST_S=$(wildcard $(SRCDIR)/tests/*.c)
+SRCS=$(wildcard $(SRCDIR)/*.c) $(TEST_S)
+TEST_E=$(subst ../,,$(TEST_S:.c=))
 DEPS=deps.mk
 
 CFLAGS=-std=c99
@@ -69,6 +71,18 @@ all: fwatch canname
 fwatch:  watchpaths.o canonicalpath.o
 
 canname: canonicalpath.o
+
+tests/t_findslashes: canonicalpath.o
+
+tests/runtests: $(SRCDIR)/tests/runtests
+	cp $< $@
+	chmod 755 $@
+
+tests:
+	mkdir -p $@
+
+test: tests tests/runtests $(TEST_E)
+	tests/runtests `pwd`
 
 depend:
 	: > $(DEPS)

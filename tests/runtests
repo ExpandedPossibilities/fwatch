@@ -1,0 +1,61 @@
+#!/bin/sh
+
+BIN_DIR="$1";
+TEST_DIR="$BIN_DIR/tests";
+shift;
+
+TESTS=$@;
+
+ALL_TESTS='t_findslashes t_fwatch_help'
+
+if [ -z "$TESTS" ]; then
+  TESTS="$ALL_TESTS"
+fi
+
+TFAIL=0;
+TPASS=0;
+
+function testit() {
+  [ -n "$SHOW_TESTS" ] && printf '\n`%s`: ' "$*";
+  if "$@"; then
+    STPASS=`expr $STPASS + 1`;
+    printf 1;
+  else
+    STFAIL=`expr $STFAIL + 1`;
+    printf 0;
+  fi
+}
+
+for t in $TESTS; do
+  STFAIL=0;
+  STPASS=0;
+  printf "$t ";
+  case $t in
+    t_findslashes)
+      for p in foo/bar/baz \
+               /foo/bar/baz \
+               //foo/bar/baz \
+               /foo//bar/baz \
+               foo \
+               ' /foo' \
+               'foo/ /' \
+               '' ; do
+        testit $TEST_DIR/t_findslashes "$p"
+      done;;
+    t_canpath)
+      echo notready;;
+    t_fwatch_help)
+      for h in '--help' '-h'; do
+        testit eval "$BIN_DIR/fwatch $h | grep -q Usage"
+      done
+  esac
+  echo;
+  echo "PASS: $STPASS FAIL: $STFAIL";
+  TPASS=`expr $TPASS + $STPASS`;
+  TFAIL=`expr $TFAIL + $STFAIL`;
+  echo;
+done
+
+echo "TOTAL_PASS: $TPASS TOTAL_FAIL: $TFAIL";
+[ $TFAIL -gt 0 ] && exit 1;
+exit 0;
