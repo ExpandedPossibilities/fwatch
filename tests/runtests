@@ -50,7 +50,8 @@ for t in $TESTS; do
     t_canname)
       while read base rel exp; do
         [ "$base" = 'NONE' ] && base='';
-        got=$("$BIN_DIR/canname" "$base" "$rel");
+        exp=$(echo $exp | sed 's:^/::')
+        got=$("$BIN_DIR/canname" "$base" "$rel" | sed 's:^/::');
         testit test "$got" = "$exp" || echo "'$base' '$rel' '$exp' '$got'";
       done < "$TEST_DIR/cannames";;
     t_fwatch_help)
