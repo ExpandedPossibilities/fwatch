@@ -80,6 +80,8 @@ canonicalpath(/*@null@*/ const char *base,
   char c;
   int ahead = 1;
   int eat = 0;
+  int base_is_relative = 0;
+
   /*@owned@*/ char *tofree = NULL;
 
   if(output != NULL && outputsize < 1){
@@ -118,6 +120,9 @@ canonicalpath(/*@null@*/ const char *base,
       errno = ENAMETOOLONG;
       goto ERR;
     }
+    if(*base != '/'){
+      base_is_relative = 1;
+    }
   }
 
   /* establish a reference to the end of rel */
@@ -131,9 +136,11 @@ canonicalpath(/*@null@*/ const char *base,
    * maximum output is:
    *  size of rel + 1 for terminating NULL
    *  plus (if base is non-null) size of base + 1 for slash
+   *  plus one more if base is non-null and doesn't start with '/'
    */
   maxosize = (size_t) ((erel - rel) + 1 +
-                       (base == NULL ? 0 : (ebase - base) + 1));
+                       (base == NULL ? 0 : (ebase - base) + 1) +
+                       (base_is_relative ? 1 : 0));
 
   if(output == NULL){
     /* allocate the output buffer */
@@ -245,7 +252,13 @@ canonicalpath(/*@null@*/ const char *base,
 
     debug_printf("\nA:%p\nB:%p\n\n", (void*)op, (void*)out);
 
-    if(oused == 1){ /* more ..'s exist than parent directories */
+    if(oused == 1){
+      /*
+       * op is always > out in this block, so oused is always at least 1.
+       * An oused of 1 indicates that the string to emit is "\0"
+       * This happens when more ..'s exist than parent directories.
+       * Instead, we will emit "/\0"
+       */
       if(osize < 2){
         /* requires enough space to return "/\0" */
         errno = ERANGE;
