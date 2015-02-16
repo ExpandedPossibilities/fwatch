@@ -54,10 +54,6 @@
       fprintf(stderr, fmt, __VA_ARGS__); } while(0)
 #endif
 
-#ifndef cp_announce_realloc
-#define cp_announce_realloc (void) 0
-#endif
-
 #define ounshift(x)                             \
   do{                                           \
   if(eat == 0){                                 \
@@ -251,6 +247,9 @@ canonicalpath(/*@null@*/ const char *base,
 
   debug_printf("\n>>%zu\n", oused);
   if(op > out){
+#ifdef CP_TRACK_OVERSIZE
+    cp_did_oversize = 10;
+#endif
     /*
      * we will have consumed more bytes than a in `out' IFF
      * "./" or "//" or "../" are present In that case, the first few
@@ -294,7 +293,9 @@ canonicalpath(/*@null@*/ const char *base,
       out = op;
     }
   } else {
-    cp_announce_realloc;
+#ifdef CP_TRACK_OVERSIZE
+    cp_did_oversize = 0;
+#endif
   }
 
   /*

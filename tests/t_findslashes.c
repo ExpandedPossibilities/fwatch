@@ -7,7 +7,7 @@ int main(int argc, char **argv){
   char *path, *it;
   size_t count, i, plen;
   if(argc < 2 ){
-    printf("USAGE: findslashes PATH\n");
+    printf("USAGE: t_findslashes PATH\n");
     return 1;
   }
   path = argv[1];

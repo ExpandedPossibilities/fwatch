@@ -6,7 +6,7 @@ shift;
 
 TESTS=$@;
 
-ALL_TESTS='t_findslashes t_fwatch_help t_canname'
+ALL_TESTS='t_findslashes t_fwatch_help t_canpath'
 
 if [ -z "$TESTS" ]; then
   TESTS="$ALL_TESTS"
@@ -47,12 +47,10 @@ for t in $TESTS; do
                '' ; do
         testit $TEST_DIR/t_findslashes "$p"
       done;;
-    t_canname)
+    t_canpath)
       while read base rel exp; do
         [ "$base" = 'NONE' ] && base='';
-        exp=$(echo $exp | sed 's:^/::')
-        got=$("$BIN_DIR/canname" "$base" "$rel" | sed 's:^/::');
-        testit test "$got" = "$exp" || echo "'$base' '$rel' '$exp' '$got'";
+        testit "$TEST_DIR/t_canpath" "$base" "$rel" "$exp";
       done < "$TEST_DIR/cannames";;
     t_fwatch_help)
       for h in '--help' '-h'; do
