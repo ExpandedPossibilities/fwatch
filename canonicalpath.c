@@ -88,8 +88,9 @@ canonicalpath(/*@null@*/ const char *base,
     goto ERR;
   }
 
-  if(rel != NULL && rel[0] == '/'){
-    /* ignore base if rel is absolute */
+  if(rel != NULL && (rel[0] == '/' ||
+                     (base != NULL && base[0] == '\0'))){
+    /* ignore base if rel is absolute or base is empty*/
     base = NULL;
   } else if(base == NULL){
 /*@-nullpass@*/
