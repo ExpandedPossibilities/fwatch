@@ -54,6 +54,10 @@
       fprintf(stderr, fmt, __VA_ARGS__); } while(0)
 #endif
 
+#ifndef cp_announce_realloc
+#define cp_announce_realloc (void) 0
+#endif
+
 #define ounshift(x)                             \
   do{                                           \
   if(eat == 0){                                 \
@@ -80,7 +84,6 @@ canonicalpath(/*@null@*/ const char *base,
   char c;
   int ahead = 1;
   int eat = 0;
-  int base_is_relative = 0;
 
   /*@owned@*/ char *tofree = NULL;
 
@@ -120,8 +123,9 @@ canonicalpath(/*@null@*/ const char *base,
       errno = ENAMETOOLONG;
       goto ERR;
     }
-    if(*base != '/'){
-      base_is_relative = 1;
+    if(*base == '/'){
+      /* initial slash is added at the end of the loop */
+      base ++;
     }
   }
 
@@ -132,15 +136,18 @@ canonicalpath(/*@null@*/ const char *base,
     goto ERR;
   }
 
+  if(*rel == '/'){
+    /* initial slash is added at the end of the loop */
+    rel ++;
+  }
+
   /*
    * maximum output is:
-   *  size of rel + 1 for terminating NULL
+   *  size of rel + 1 for terminating NULL + 1 for slash
    *  plus (if base is non-null) size of base + 1 for slash
-   *  plus one more if base is non-null and doesn't start with '/'
    */
-  maxosize = (size_t) ((erel - rel) + 1 +
-                       (base == NULL ? 0 : (ebase - base) + 1) +
-                       (base_is_relative ? 1 : 0));
+  maxosize = (size_t) ((erel - rel) + 2 +
+                       (base == NULL ? 0 : (ebase - base) + 1));
 
   if(output == NULL){
     /* allocate the output buffer */
@@ -237,6 +244,7 @@ canonicalpath(/*@null@*/ const char *base,
       }
     }
   }
+  if(*op != '/')  ounshift('/');
 
   /* calculate memory used, including final NULL byte */
   oused = (size_t) (out + osize - op);
@@ -285,6 +293,8 @@ canonicalpath(/*@null@*/ const char *base,
       }
       out = op;
     }
+  } else {
+    cp_announce_realloc;
   }
 
   /*
