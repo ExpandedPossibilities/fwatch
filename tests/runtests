@@ -36,7 +36,7 @@ shift;
 
 TESTS=$@;
 
-ALL_TESTS='t_findslashes t_fwatch_help t_canpath'
+ALL_TESTS='t_findslashes fwatch_help canname_help t_canonicalpath'
 
 if [ -z "$TESTS" ]; then
   TESTS="$ALL_TESTS"
@@ -77,15 +77,21 @@ for t in $TESTS; do
                '' ; do
         testit $TEST_DIR/t_findslashes "$p"
       done;;
-    t_canpath)
+    t_canonicalpath)
       while read base rel exp; do
         [ "$base" = 'NONE' ] && base='';
-        testit "$TEST_DIR/t_canpath" "$base" "$rel" "$exp";
+        testit "$TEST_DIR/t_canonicalpath" "$base" "$rel" "$exp";
       done < "$TEST_DIR/cannames";;
-    t_fwatch_help)
+    fwatch_help)
       for h in '--help' '-h'; do
-        testit eval "$BIN_DIR/fwatch $h | grep -q Usage"
-      done
+        testit eval "$BIN_DIR/fwatch $h | grep -qi usage"
+      done;;
+    canname_help)
+      for h in '--help' '-h'; do
+        testit eval "$BIN_DIR/canname $h | grep -qi usage"
+      done;;
+    *) echo UNRECOGNIZED TEST;
+      testit false;;
   esac
   echo;
   echo "PASS: $STPASS FAIL: $STFAIL";

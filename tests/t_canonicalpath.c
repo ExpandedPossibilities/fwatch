@@ -45,7 +45,7 @@ int main(int argc, char **argv){
   int bres, pres;
 
   if(argc < 4 ){
-    printf("USAGE: t_canpath BASE PATH EXPECTED\n");
+    printf("USAGE: t_canonicalpath BASE PATH EXPECTED\n");
     return 1;
   }
   base = argv[1];
