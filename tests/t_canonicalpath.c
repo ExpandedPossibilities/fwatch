@@ -39,6 +39,7 @@ int cp_did_oversize = 0;
 #include <string.h>
 #include <regex.h>
 
+
 int main(int argc, char **argv){
   char *base, *path, *expected, *result;
   regex_t reg;
@@ -52,14 +53,14 @@ int main(int argc, char **argv){
   path = argv[2];
   expected = argv[3];
 
-  fprintf(stderr, "Given '%s' '%s' '%s' : ", base, path, expected);
   result = canpath(base, path);
   if(result == NULL){
-    err(2, "canpath returned NULL");
+    err(2, "\nGiven '%s' '%s' '%s' : canpath returned NULL",
+        base, path, expected);
   }
-  fprintf(stderr, "got '%s'\n", result);
   if(0 != strncmp(result, expected, PATH_MAX)){
-    errx(3, " '%s' != '%s'", expected, result);
+    errx(3, "\nGiven '%s' '%s' '%s' != '%s'",
+         base, path, expected, result);
   }
   /*
    * since we didn't exit above, the various strings must have
@@ -75,11 +76,13 @@ int main(int argc, char **argv){
   if((*path == '/' && pres == REG_NOMATCH) ||
      (pres == REG_NOMATCH && bres == REG_NOMATCH)){
     if(cp_did_oversize != 0) {
-      errx(5, "Unexpected oversize in canonicalpath");
+      errx(5, "\nGiven '%s' '%s' '%s' : Unexpected oversize in canonicalpath",
+           base, path, expected);
     }
   } else {
     if(cp_did_oversize == 0) {
-      errx(4, "Expected oversize in canonicalpath did not occur");
+      errx(4, "\nGiven '%s' '%s' '%s' : Expected oversize in canonicalpath"
+           "did not occur", base, path, expected);
     }
   }
   regfree(&reg);
