@@ -103,28 +103,25 @@ canonicalpath(/*@null@*/ const char *base,
     base = tofree;
   }
 
-  if(rel == NULL){
-    /* if only one of (rel, base) are present, put it in rel */
-    rel = base;
-    base = NULL;
+  if(rel == NULL || *rel == '\0'){
+    rel = ".";
   }
 
-
-  if(base == NULL){
-    /* next line prevents subtraction from breaking in length calc */
-    ebase = NULL;
-  } else {
-    /* establish a reference to the end of base */
-    ebase = base + strnlen(base, PATH_MAX);
-    if(*ebase != '\0'){
-      errno = ENAMETOOLONG;
-      goto ERR;
-    }
-    if(*base == '/'){
-      /* initial slash is added at the end of the loop */
-      base ++;
-    }
+  if(base == NULL || *base == '\0'){
+    base = "/";
   }
+
+  /* establish a reference to the end of base */
+  ebase = base + strnlen(base, PATH_MAX);
+  if(*ebase != '\0'){
+    errno = ENAMETOOLONG;
+    goto ERR;
+  }
+  if(*base == '/'){
+    /* initial slash is added at the end of the loop */
+    base ++;
+  }
+
 
   /* establish a reference to the end of rel */
   erel = rel + strnlen(rel, PATH_MAX);
@@ -132,7 +129,6 @@ canonicalpath(/*@null@*/ const char *base,
     errno = ENAMETOOLONG;
     goto ERR;
   }
-
   if(*rel == '/'){
     /* initial slash is added at the end of the loop */
     rel ++;
