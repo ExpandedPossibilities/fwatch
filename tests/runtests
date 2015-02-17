@@ -80,6 +80,7 @@ for t in $TESTS; do
     t_canonicalpath)
       while read base rel exp; do
         [ "$base" = 'NONE' ] && base='';
+        [ "$rel" = 'NONE' ] && rel='';
         testit "$TEST_DIR/t_canonicalpath" "$base" "$rel" "$exp";
       done < "$TEST_DIR/cannames";;
     fwatch_help)

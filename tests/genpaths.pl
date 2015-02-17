@@ -22,9 +22,8 @@ sub print_test1{
 
 sub print_test{
   my ($s, $p) = (@_);
-  next unless $p;
   my $sa=$s?$s:'NONE';
-  my $pa=$p;
+  my $pa=$p?$p:'NONE';
   $p="$s/$p" unless $p=~m:^/:;
   $p=~s:/+:/:g;
   my $ap = new URI('.')->abs("file://///////////////////////////$p/")->path;
@@ -116,6 +115,10 @@ sub genpaths {
 #print join "\n", genpaths(123,3000,5000,qw/a b c e/);
 #print "\n";
 #exit 1;
+
+print_test('/','');
+print_test('','/');
+
 foreach my $base (genpaths(123,31,703,qw(foxtrot golf hotel)),
                   genpaths(123,17,703,qw(foxtrot.. ..golf .hotel))) {
   foreach my $path (genpaths(423,73,947,qw(alpha beta gamma ...)),

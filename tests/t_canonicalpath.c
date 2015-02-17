@@ -52,12 +52,12 @@ int main(int argc, char **argv){
   path = argv[2];
   expected = argv[3];
 
-  fprintf(stderr, "Given '%s' '%s' '%s'\n", base, path, expected);
+  fprintf(stderr, "Given '%s' '%s' '%s' : ", base, path, expected);
   result = canpath(base, path);
   if(result == NULL){
     err(2, "canpath returned NULL");
   }
-  fprintf(stderr, "Got '%s'\n", result);
+  fprintf(stderr, "got '%s'\n", result);
   if(0 != strncmp(result, expected, PATH_MAX)){
     errx(3, " '%s' != '%s'", expected, result);
   }
