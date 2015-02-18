@@ -45,7 +45,7 @@ fi
 TFAIL=0;
 TPASS=0;
 
-function testit() {
+testit () {
   [ -n "$SHOW_TESTS" ] && printf '\n`%s`: ' "$*";
   if "$@"; then
     STPASS=`expr $STPASS + 1`;
