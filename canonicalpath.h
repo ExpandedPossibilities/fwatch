@@ -85,6 +85,17 @@
  * canonicalpath may additionally return NULL and set errno to any
  * of the values specified by the library functions malloc(3),
  * realloc(3), or getcwd(3).
+ *
+ * NOTES
+ * -----
+ *
+ * This is not a substitute for `realpath(3)`. Backtracking tricks
+ * involving symlinks are not detected. If you attempt to canonicalize
+ * `/foo/../bar`, the result is `/bar`, even if `/foo` on this system
+ * is a symlink deep into the file system. This is the tradeoff of
+ * being able to canonicalize paths which do not exist.
+ * `canonicalpath()` operates on an abstract notion of path names. It
+ * does not communicate with the file system at all.
  */
 
 /*@null@*/ char* canonicalpath (/*@null@*/ const char *base,

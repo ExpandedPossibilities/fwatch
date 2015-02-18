@@ -116,6 +116,14 @@ to a change in the behavior of the function on that platform. The
 current version uses `canonicalpath()`, which allows watching for the
 creation of entire directory trees in `watchpaths()`.
 
+Not using `realpath(3)` means that backtracking tricks involving
+symlinks are not detected. If you attempt to watch `foo/../bar`, then
+`watch_paths()` will watch `/bar`, even if `foo` is a symlink deep
+into the file system. This is the tradeoff for being able to watch
+for paths which do not yet exist. To avoid this behavior, use absolute
+paths when invoking `fwatch`, or `watchpaths()`. A future version may
+make this behavior optional.
+
 The path canonicalization code attempts to conserve memory and to
 operate in as few passes over the input as possible. These goals are
 at odds with each other. In all but the simplest case, the input is

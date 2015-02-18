@@ -53,7 +53,12 @@ main(int argc, char **argv)
            "Writes a canonicalized version of each PATH, relative to current\n"
 	   "working directory or BASE, to standard output.\n"
            "If PATH starts with a slash, BASE is ignored.\n"
-           "If BASE is supplied but empty, it is treated as \"/\"\n");
+           "If BASE is supplied but empty, it is treated as \"/\"\n\n"
+           "canname operates on an abstract notion of paths and is\n"
+           "intentionally unaware of symlinks. Backtracking tricks\n"
+           "involving symlinks are not detected. canname '/foo/../bar'\n"
+           "returns '/bar', even if '/foo' on this system is a symlink\n"
+           "deep into the file system.\n");
     return 2;
   }
 
