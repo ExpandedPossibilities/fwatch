@@ -29,40 +29,15 @@
  *  SUCH DAMAGE.
  */
 
-#include "../watchpaths.c"
-#include <err.h>
-#include <assert.h>
+#ifndef __SPLINT_DEFS_H
+#define __SPLINT_DEFS_H
+#ifdef S_SPLINT_S
+/*
+ * When running splint, the default definitions for these
+ * functions result in improper warnings
+ */
 
-int main(int argc, char **argv){
-  char **slashes;
-  char *path;
-  /*@dependent@*/ char *it;
-  size_t count, i, plen;
-  if(argc < 2 ){
-    printf("USAGE: t_findslashes PATH\n");
-    return 1;
-  }
-  path = argv[1];
-  plen = strnlen(argv[1], PATH_MAX);
-
-  slashes = find_slashes(path, 0, &count);
-  if(slashes == NULL){
-    err(2, "find_slashes returned NULL");
-  }
-  for(i = 0; i < count; i++){
-    /* iterate over slash list and print out the offsets */
-    fprintf(stderr, "%zu ", i);
-    it = slashes[i];
-    if(i == 0){
-      assert(it == NULL);
-      fprintf(stderr, "---\n");
-    } else {
-      assert(it != NULL);
-      assert(it >= path);
-      assert(it <= path + plen);
-      fprintf(stderr, "%3ld %.180s\n", it - path, it);
-    }
-  }
-  free(slashes);
-  return 0;
-}
+/*@noreturn@*/ void err(int, const char *, ...);
+/*@noreturnwhenfalse@*/ void assert(int);
+#endif
+#endif

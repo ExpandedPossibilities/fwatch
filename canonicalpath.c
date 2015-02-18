@@ -39,6 +39,7 @@
 #include <err.h>
 
 #include "canonicalpath.h"
+#include "splint_defs.h"
 
 #ifndef CP_DEBUG
 #define CP_DEBUG 0

@@ -41,17 +41,7 @@
 
 #include "watchpaths.h"
 #include "reallocarray.h"
-
-
-#ifdef S_SPLINT_S
-/*
- * When running splint, the default definitions for these
- * functions result in improper warnings
- */
-
-/*@noreturn@*/ void err(int, const char *, ...);
-/*@noreturnwhenfalse@*/ void assert(int);
-#endif
+#include "splint_defs.h"
 
 /* struct runinfo
  *

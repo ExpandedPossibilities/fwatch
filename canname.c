@@ -37,10 +37,7 @@
 #include <err.h>
 
 #include "canonicalpath.h"
-
-#ifdef S_SPLINT_S
-/*@noreturn@*/ void err(int, const char *, ...);
-#endif
+#include "splint_defs.h"
 
 int
 main(int argc, char **argv)

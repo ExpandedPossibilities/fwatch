@@ -46,6 +46,7 @@
 #include "watchpaths.h"
 #include "canonicalpath.h"
 #include "reallocarray.h"
+#include "splint_defs.h"
 
 #ifndef WP_DEBUG
 #define WP_DEBUG 0
