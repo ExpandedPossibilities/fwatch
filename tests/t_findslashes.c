@@ -62,5 +62,6 @@ int main(int argc, char **argv){
       fprintf(stderr, "%3ld %.180s\n", it - path, it);
     }
   }
+  free(slashes);
   return 0;
 }
