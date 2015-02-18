@@ -45,10 +45,12 @@
 #endif
 
 #ifdef S_SPLINT_S
+static const char* CP_EMPTY_PATH = "";
 #define report_error perror
 #define debug_print printf
 #define debug_printf printf
 #else
+#define CP_EMPTY_PATH ""
 #define debug_print(str)        debug_printf("%s", str)
 #define debug_printf(fmt, ...)  do { if(CP_DEBUG)       \
       fprintf(stderr, fmt, __VA_ARGS__); } while(0)
@@ -65,6 +67,7 @@
     }                                           \
   }} while(0)
 
+
 /*@null@*/
 char *
 canonicalpath(/*@null@*/ const char *base,
@@ -76,7 +79,7 @@ canonicalpath(/*@null@*/ const char *base,
   const char *ebase, *erel, *targ, *ip;
   char *out = NULL;
   char *op;
-  size_t oused, maxosize, osize;
+  size_t oused, maxosize, osize, slen;
   char c;
   int ahead = 1;
   int eat = 0;
@@ -88,11 +91,14 @@ canonicalpath(/*@null@*/ const char *base,
     goto ERR;
   }
 
-  if(rel != NULL && (rel[0] == '/' ||
-                     (base != NULL && base[0] == '\0'))){
-    /* ignore base if rel is absolute or base is empty*/
+  /* idea */
+
+  if(rel != NULL && *rel == '/'){
+    /* rel is absolute, ignore base */
     base = NULL;
-  } else if(base == NULL){
+  } else if(base == NULL) {
+    /* rel is not absolute, but base is null. put cwd in base */
+
 /*@-nullpass@*/
     tofree = getcwd(NULL, 0);
 /*@=nullpass@*/
@@ -103,44 +109,47 @@ canonicalpath(/*@null@*/ const char *base,
     base = tofree;
   }
 
-  if(rel == NULL || *rel == '\0'){
-    rel = ".";
+  /* initial slash is added at the end of the loop */
+
+  while(base != NULL && *base == '/') base++;
+  if(base != NULL && *base == '\0') base = NULL;
+
+  while(rel != NULL && *rel == '/') rel++;
+  if(rel != NULL && *rel == '\0') rel = NULL;
+
+  /* if only one of (rel, base) are present, put it in rel */
+  if(rel == NULL) {
+    rel = base;
+    base = NULL;
   }
 
-  if(base == NULL || *base == '\0'){
-    base = "/";
-  }
+  /* /idea */
+
+  maxosize = 2; /* room for '/' and '\0' */
 
   /* establish a reference to the end of base */
-  ebase = base + strnlen(base, PATH_MAX);
-  if(*ebase != '\0'){
-    errno = ENAMETOOLONG;
-    goto ERR;
-  }
-  if(*base == '/'){
-    /* initial slash is added at the end of the loop */
-    base ++;
+  if(base == NULL) {
+    ebase = NULL;
+  } else {
+    slen = strnlen(base, PATH_MAX);
+    ebase = base + slen;
+    if(*ebase != '\0'){
+      errno = ENAMETOOLONG;
+      goto ERR;
+    }
+    maxosize += slen + 1;
   }
 
+  if(rel == NULL) rel = CP_EMPTY_PATH;
 
   /* establish a reference to the end of rel */
-  erel = rel + strnlen(rel, PATH_MAX);
+  slen = strnlen(rel, PATH_MAX);
+  erel = rel + slen;
   if(*erel != '\0'){
     errno = ENAMETOOLONG;
     goto ERR;
   }
-  if(*rel == '/'){
-    /* initial slash is added at the end of the loop */
-    rel ++;
-  }
-
-  /*
-   * maximum output is:
-   *  size of rel + 1 for terminating NULL + 1 for slash
-   *  plus (if base is non-null) size of base + 1 for slash
-   */
-  maxosize = (size_t) ((erel - rel) + 2 +
-                       (base == NULL ? 0 : (ebase - base) + 1));
+  maxosize += slen;
 
   if(output == NULL){
     /* allocate the output buffer */
@@ -245,7 +254,7 @@ canonicalpath(/*@null@*/ const char *base,
   debug_printf("\n>>%zu\n", oused);
   if(op > out){
 #ifdef CP_TRACK_OVERSIZE
-    cp_did_oversize = 10;
+    cp_did_oversize = 1;
 #endif
     /*
      * we will have consumed more bytes than a in `out' IFF
