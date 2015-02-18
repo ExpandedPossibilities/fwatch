@@ -66,7 +66,9 @@ ifdef WP_COMPLAIN
 CFLAGS += -DWP_COMPLAIN
 endif
 
-all: fwatch canname
+bins: fwatch canname
+
+all: bins tests tests/runtests tests/cannames $(TEST_E)
 
 fwatch:  watchpaths.o canonicalpath.o
 
@@ -84,7 +86,7 @@ tests:
 tests/cannames: $(SRCDIR)/tests/genpaths.pl tests
 	$< > $@
 
-test: all tests tests/runtests tests/cannames $(TEST_E)
+test: all
 	tests/runtests `pwd`
 
 depend:
