@@ -43,7 +43,7 @@ int cp_did_oversize = 0;
 int main(int argc, char **argv){
   char *base, *path, *expected, *result;
   regex_t reg;
-  int bres, pres;
+  int bres, pres, ok;
 
   if(argc < 4 ){
     printf("USAGE: t_canonicalpath BASE PATH EXPECTED\n");
@@ -67,9 +67,12 @@ int main(int argc, char **argv){
    * reasonable length
    */
 
-  assert(0 == regcomp(&reg, "(/|^)\\.{1,2}(/|$)|//", REG_EXTENDED));
+  ok = regcomp(&reg, "(/|^)\\.{1,2}(/|$)|//", REG_EXTENDED);
+  assert(0 == ok);
+/*@-nullpass@*/
   bres = regexec(&reg, base, 0, NULL, 0);
   pres = regexec(&reg, path, 0, NULL, 0);
+/*@=nullpass@*/
   assert(bres == 0 || bres == REG_NOMATCH);
   assert(pres == 0 || pres == REG_NOMATCH);
 
@@ -85,7 +88,8 @@ int main(int argc, char **argv){
            "did not occur", base, path, expected);
     }
   }
+/*@-immediatetrans@*/
   regfree(&reg);
-
+/*@=immediatetrans@*/
   return 0;
 }
