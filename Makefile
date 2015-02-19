@@ -35,28 +35,25 @@ fwatch:  watchpaths.o canonicalpath.o fwatch.c
 
 canname: canname.c canonicalpath.o
 	$(CC) $(CFLAGS) $> -o $@
-tests:
-	mkdir tests
-
-#tests/runtests: tests
-#tests/cannames: tests
-#tests/t_canonicalpath: tests
-#tests/t_findslashes: tests
 
 tests/runtests: ../tests/runtests
+	mkdir -p tests
 	cp ../tests/runtests $@
 	chmod 755 $@
 
 tests/cannames: ../tests/genpaths.pl
+	mkdir -p tests
 	../tests/genpaths.pl > $@
 
 tests/t_canonicalpath: ../tests/t_canonicalpath.c
+	mkdir -p tests
 	 $(CC) $(CFLAGS) $> -o $@
 
 tests/t_findslashes: ../tests/t_findslashes.c canonicalpath.o
+	mkdir -p tests
 	 $(CC) $(CFLAGS) $> -o $@
 
-test: tests all
+test: all
 	tests/runtests `pwd`
 
 clean:
