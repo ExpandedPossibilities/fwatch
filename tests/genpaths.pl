@@ -1,24 +1,5 @@
 #!/usr/bin/perl
 use strict;
-use URI;
-
-
-sub print_test1{
-  my ($s, $p) = (@_);
-  next unless $p;
-  my $sa=$s?$s:'NONE';
-  my $pa=$p;
-  $p=~s:^(/+)::;
-  $s=$1 if $1;
-  $s=~s:/+:/:g;
-  $p=~s:/+:/:g;
-  my $ap = new URI($p)->abs("file://///////////////////////////$s/")->path;
-  $ap=~s:/+:/:g;
-  $ap=~s:/$::;
-  $ap = '/' unless $ap;
-  print "$sa\t$pa\t$ap\n";
-}
-
 
 sub print_test{
   my ($s, $p) = (@_);
@@ -26,10 +7,16 @@ sub print_test{
   my $pa=$p?$p:'NONE';
   $p="$s/$p" unless $p=~m:^/:;
   $p=~s:/+:/:g;
-  my $ap = new URI('.')->abs("file://///////////////////////////$p/")->path;
+  my $ap = $p;
+  while(
+    $ap=~s://+:/:g ||
+    $ap=~s:(^|/)\.(?=/|$):\1: ||
+    $ap=~s:(^|/)[^/]*/\.\.(?=/|$):\1:){}
+  $ap='/'.$ap;
+  while(
+    $ap=~s:^(/+\.\./)+:/:){};
   $ap=~s:/+:/:g;
-  $ap=~s:/$::;
-  $ap = '/' unless $ap;
+  $ap=~s:(.)/$:\1:;
   print "$sa\t$pa\t$ap\n";
 }
 
