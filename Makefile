@@ -22,23 +22,49 @@ CFLAGS += -DWP_DEBUG
 CFLAGS += -DWP_COMPLAIN
 .endif
 
-SRCS=canonicalpath.c canname.c fwatch.c watchpaths.c
 DEPS=deps.mk
 
-all: fwatch canname
+bins: fwatch canname
+
+testbins: tests/runtests tests/cannames tests/t_canonicalpath tests/t_findslashes
+
+all: bins testbins
 
 fwatch:  watchpaths.o canonicalpath.o fwatch.c
 	$(CC) $(CFLAGS) $> -o $@
 
 canname: canname.c canonicalpath.o
 	$(CC) $(CFLAGS) $> -o $@
+tests:
+	mkdir tests
+
+#tests/runtests: tests
+#tests/cannames: tests
+#tests/t_canonicalpath: tests
+#tests/t_findslashes: tests
+
+tests/runtests: ../tests/runtests
+	cp ../tests/runtests $@
+	chmod 755 $@
+
+tests/cannames: ../tests/genpaths.pl
+	../tests/genpaths.pl > $@
+
+tests/t_canonicalpath: ../tests/t_canonicalpath.c
+	 $(CC) $(CFLAGS) $> -o $@
+
+tests/t_findslashes: ../tests/t_findslashes.c canonicalpath.o
+	 $(CC) $(CFLAGS) $> -o $@
+
+test: tests all
+	tests/runtests `pwd`
 
 clean:
-	rm -f ../obj/*
+	rm -rf ../obj/*
 
 depend:
 	: > $(DEPS)
-	makedepend -f $(DEPS) -Y -- $(CFLAGS) -- $(SRCS) 2>/dev/null
+	makedepend -f $(DEPS) -Y -- $(CFLAGS) -- *.c tests/*.c 2>/dev/null
 
 .if exists($(DEPS))
 .include "$(DEPS)"
