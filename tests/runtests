@@ -36,7 +36,7 @@ shift;
 
 TESTS=$@;
 
-ALL_TESTS='t_findslashes fwatch_help canname_help t_canonicalpath'
+ALL_TESTS='t_findslashes fwatch_help canname_help t_canonicalpath_err t_canonicalpath_times t_canonicalpath'
 
 if [ -z "$TESTS" ]; then
   TESTS="$ALL_TESTS"
@@ -77,6 +77,10 @@ for t in $TESTS; do
                '' ; do
         testit $TEST_DIR/t_findslashes "$p"
       done;;
+    t_canonicalpath_err)
+      testit "$TEST_DIR/t_canonicalpath_err";;
+    t_canonicalpath_times)
+      testit "$TEST_DIR/t_canonicalpath_times" 1000;;
     t_canonicalpath)
       while read base rel exp; do
         [ "$base" = 'NONE' ] && base='';

@@ -71,9 +71,9 @@ static const char* CP_EMPTY_PATH = "";
 
 /*@null@*/
 char *
-canonicalpath(/*@null@*/ const char *base,
-              /*@null@*/ const char *rel,
-              /*@null@*/ /*@returned@*/ char *output,
+canonicalpath(/*@null@*/ const char * restrict base,
+              /*@null@*/ const char * restrict rel,
+              /*@null@*/ /*@returned@*/ char * restrict output,
               size_t outputsize,
               /*@null@*/ size_t *used)
 {
@@ -87,7 +87,7 @@ canonicalpath(/*@null@*/ const char *base,
 
   /*@owned@*/ char *tofree = NULL;
 
-  if(output != NULL && outputsize < 1){
+  if(output != NULL && outputsize < 2){
     errno = ERANGE;
     goto ERR;
   }
@@ -151,6 +151,13 @@ canonicalpath(/*@null@*/ const char *base,
     goto ERR;
   }
   maxosize += slen;
+
+
+  if((base <= rel && ebase >= rel) ||
+     (rel <= base && erel >= base)){
+    errno = EINVAL;
+    goto ERR;
+  }
 
   if(output == NULL){
     /* allocate the output buffer */
