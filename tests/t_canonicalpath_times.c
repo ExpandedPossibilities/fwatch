@@ -34,13 +34,13 @@
 #include <assert.h>
 #include <string.h>
 
-char* longstr(int size){
+static char* longstr(size_t size){
   char *out;
   assert(size >= 1);
   out = malloc(size + 1);
   assert(out != NULL);
-  memset(out, 'x', size);
-  out[size] = 0;
+  memset(out, (int) 'x', size);
+  out[size] = '\0';
   return out;
 }
 
