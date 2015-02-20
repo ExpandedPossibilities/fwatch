@@ -45,14 +45,14 @@ char* longstr(int size){
 }
 
 int main(int argc, char **argv){
-  int i, count;
+  long i, count;
   char *result, *base, *path;
 
   if(argc < 2){
     printf("USAGE: t_canonicalpath_times TIMES\n");
     return 1;
   }
-  count = atoi(argv[1]);
+  count = atol(argv[1]);
 
   assert(count > 0);
 
