@@ -37,11 +37,11 @@
 
 #define bufflen 9
 
-int main(int argc, char **argv){
+int main(/*@unused@*/ int argc, /*@unused@*/ char **argv){
   char data[] = "1234567890";
   char *base, *path, *result;
   char buff[bufflen + 1];
-  size_t used;
+  size_t used = 0;
 
   buff[bufflen] = '\0';
 
@@ -55,7 +55,7 @@ int main(int argc, char **argv){
 
   base = malloc(PATH_MAX + 3);
   assert(base != NULL);
-  memset(base, 'x', PATH_MAX + 1);
+  memset(base, (int)'x', PATH_MAX + 1);
   base[PATH_MAX + 2] = '\0';
 
   errno = 0;
@@ -67,26 +67,35 @@ int main(int argc, char **argv){
   errno = 0;
   result = canonicalpath("/a/base", "some/path", buff, 0, &used);
   if(result != NULL || errno != ERANGE){
+/*@-nullpass@*/
     err(3, "Failed to detect too-small output buffer 1 %p", result);
+/*@=nullpass@*/
   }
 
   errno = 0;
   result = canonicalpath("/foo", "../../../../", buff, 0, &used);
   if(result != NULL || errno != ERANGE){
+/*@-nullpass@*/
     err(4, "Failed to detect too-small output buffer 2 %p", result);
+/*@=nullpass@*/
   }
 
   errno = 0;
   result = canonicalpath("/foo", "../../../../", buff, 1, &used);
   if(result != NULL || errno != ERANGE){
+/*@-nullpass@*/
     err(5, "Failed to detect too-small output buffer 3 %p", result);
+/*@=nullpass@*/
   }
 
   errno = 0;
   result = canonicalpath("/foo", "../../../../", buff, 2, &used);
   if(result != buff || used != 1){
+/*@-nullpass@*/
     err(6, "Failed to manage too-many ..'s %p %p %zd", result, buff, used);
+/*@=nullpass@*/
   }
 
+  free(base);
   return 0;
 }

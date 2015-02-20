@@ -100,7 +100,8 @@
 
 /*@null@*/ char* canonicalpath (/*@null@*/ const char *base,
                                 /*@null@*/ const char *rel,
-                                /*@null@*/ /*@returned@*/ char *output,
+                                /*@null@*/ /*@out@*/ /*@returned@*/
+                                char *output,
                                 size_t outlen,
                                 /*@null@*/ size_t *used);
 

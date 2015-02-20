@@ -73,7 +73,7 @@ static const char* CP_EMPTY_PATH = "";
 char *
 canonicalpath(/*@null@*/ const char * restrict base,
               /*@null@*/ const char * restrict rel,
-              /*@null@*/ /*@returned@*/ char * restrict output,
+              /*@null@*/ /*@out@*/ /*@returned@*/ char * restrict output,
               size_t outputsize,
               /*@null@*/ size_t *used)
 {
