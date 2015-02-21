@@ -64,8 +64,9 @@ rmtd () {
     D=$(printf "%s" "$de" | unvis);
     [ -d "$D" ] && rm -r "$D";
   done
+  exit;
 }
-trap rmtd EXIT INT;
+trap rmtd EXIT INT TERM;
 
 
 mtd () {
@@ -91,7 +92,7 @@ for t in $TESTS; do
                ' /foo' \
                'foo/ /' \
                '' ; do
-        testit $TEST_DIR/t_findslashes "$p"
+        testit "$TEST_DIR/t_findslashes" "$p"
       done;;
     t_watchpaths)
       if D="$(mtd t_watchpaths)"; then
