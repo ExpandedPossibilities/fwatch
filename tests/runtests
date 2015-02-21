@@ -58,20 +58,19 @@ testit () {
   fi
 }
 
-TO_DEL='';
+
+
+TEMP_D="$TEST_DIR/tmp.$$_$(date +%s)"
 rmtd () {
-  for de in $TO_DEL; do
-    D=$(printf "%s" "$de" | unvis);
-    [ -d "$D" ] && rm -r "$D";
-  done
+  [ -d "$TEMP_D" ] && rm -r "$TEMP_D"
   exit;
 }
 trap rmtd EXIT INT TERM;
 
-
 mtd () {
-  D="$(mktemp -dt "$1.XXXXXX")" && TO_DEL="$(printf "%s" "$D"|vis -w;) $TO_DEL" || exit
-  printf "%s\n" "$D";
+  RET="$TEMP_D/$(basename $1)";
+  mkdir -p "$RET" || exit;
+  printf "%s" "$RET"
 }
 
 
