@@ -36,7 +36,7 @@ shift;
 
 TESTS=$@;
 
-ALL_TESTS='t_findslashes fwatch_help canname_help t_canonicalpath_err t_canonicalpath_times t_canonicalpath'
+ALL_TESTS='fwatch_help canname_help t_findslashes t_canonicalpath_err t_canonicalpath_times t_watchpaths t_canonicalpath'
 
 if [ -z "$TESTS" ]; then
   TESTS="$ALL_TESTS"
@@ -58,6 +58,22 @@ testit () {
   fi
 }
 
+TO_DEL='';
+rmtd () {
+  for de in $TO_DEL; do
+    D=$(printf "%s" "$de" | unvis);
+    [ -d "$D" ] && rm -r "$D";
+  done
+}
+trap rmtd EXIT INT;
+
+
+mtd () {
+  D="$(mktemp -dt "$1.XXXXXX")" && TO_DEL="$(printf "%s" "$D"|vis -w;) $TO_DEL" || exit
+  printf "%s\n" "$D";
+}
+
+
 for t in $TESTS; do
   STFAIL=0;
   STPASS=0;
@@ -77,6 +93,47 @@ for t in $TESTS; do
                '' ; do
         testit $TEST_DIR/t_findslashes "$p"
       done;;
+    t_watchpaths)
+      if D="$(mtd t_watchpaths)"; then
+        SD="foo/bar/baz/quux";
+        tracker="$D/tracker";
+        towatch="$D/$SD/file_to_watch";
+        mkdir -p "$D/$SD";
+
+        rm -f -- "$tracker"
+        rm -f -- "$towatch.1" "$towatch.2" "$towatch.3"
+
+        "$TEST_DIR/t_watchpaths" 6 "$towatch.1" "$towatch.2" \
+                                   "$towatch.3" > "$tracker" &
+        pid=$!;
+        wait_for_start=0;
+        while [ $wait_for_start -lt 5 ] && [ ! -f "$tracker" ]; do
+          wait_for_start=$(expr $wait_for_start + 1);
+          sleep 1;
+        done
+        testit test -f "$tracker"
+
+        echo a > "$towatch.1";sleep 1;
+        echo alpha  > "$towatch.2";sleep 1;
+        echo b >> "$towatch.1";sleep 1;
+
+        rm "$towatch.1"
+        rm -r "$D/$SD";
+        mkdir -p "$D/$SD";
+        echo gamma > "$towatch.1";sleep 1;
+        echo different > "$towatch.other"
+        mv "$towatch.other" "$towatch.1";sleep 1;
+        echo delta >> "$towatch.2";sleep 1;
+        testit test -z "$(ps -p $pid -o 'pid=')";
+        ps -p $pid -o 'pid=' && { kill $pid; wait $pid; }
+        testit test -f "$tracker"
+        testit test $(grep -cF "$towatch.3" "$tracker") = 0
+        testit test $(grep -cF "$towatch.2" "$tracker") = 2
+        testit test $(grep -cF "$towatch.1" "$tracker") = 4
+      else
+        echo "Unable to make temporary directory for testing watchpaths"
+        testit false;
+      fi;;
     t_canonicalpath_err)
       testit "$TEST_DIR/t_canonicalpath_err";;
     t_canonicalpath_times)

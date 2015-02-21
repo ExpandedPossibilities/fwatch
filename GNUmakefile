@@ -76,6 +76,8 @@ canname: canonicalpath.o
 
 tests/t_findslashes: canonicalpath.o
 
+tests/t_watchpaths: watchpaths.o canonicalpath.o
+
 tests/runtests: $(SRCDIR)/tests/runtests
 	cp $< $@
 	chmod 755 $@
