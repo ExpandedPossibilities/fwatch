@@ -26,7 +26,7 @@ DEPS=deps.mk
 
 bins: fwatch canname
 
-testbins: tests/runtests tests/cannames tests/t_canonicalpath tests/t_findslashes
+testbins: tests/runtests tests/cannames tests/t_canonicalpath tests/t_findslashes tests/t_canonicalpath_err tests/t_canonicalpath_times tests/t_watchpaths
 
 all: bins testbins
 
@@ -49,7 +49,19 @@ tests/t_canonicalpath: ../tests/t_canonicalpath.c
 	mkdir -p tests
 	 $(CC) $(CFLAGS) $> -o $@
 
+tests/t_canonicalpath_times: ../tests/t_canonicalpath_times.c
+	mkdir -p tests
+	 $(CC) $(CFLAGS) $> -o $@
+
+tests/t_canonicalpath_err: ../tests/t_canonicalpath_err.c
+	mkdir -p tests
+	 $(CC) $(CFLAGS) $> -o $@
+
 tests/t_findslashes: ../tests/t_findslashes.c canonicalpath.o
+	mkdir -p tests
+	 $(CC) $(CFLAGS) $> -o $@
+
+tests/t_watchpaths: ../tests/t_watchpaths.c watchpaths.o canonicalpath.o
 	mkdir -p tests
 	 $(CC) $(CFLAGS) $> -o $@
 
