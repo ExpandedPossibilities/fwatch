@@ -41,7 +41,7 @@
 #include "../splint_defs.h"
 
 
-char **files;
+static char **files;
 
 static void
 callback(/*@unused@*/ u_int flags, int idx, void *data, int *cont)
@@ -53,22 +53,25 @@ callback(/*@unused@*/ u_int flags, int idx, void *data, int *cont)
 
   assert(files[idx] != NULL);
   printf("%s", files[idx]);
-  fflush(stdout);
+  if(0 != fflush(stdout)){
+    err(20, "Unable to flush");
+  }
 
   if(-1 == stat(files[idx], &finfo)){
     printf("\n");
     err(100 + idx, "Failed to stat %s", files[idx]);
   }
 
-  printf(" %lld\n", finfo.st_size);
-  fflush(stdout);
-
+  printf(" %zd\n", finfo.st_size);
+  if(0 != fflush(stdout)){
+    err(20, "Unable to flush");
+  }
 }
 
 int
 main(int argc, char **argv)
 {
-  int count;
+  int count, ret;
 
   if(argc < 3){
     errx(1,"USAGE: t_watchpaths TIMES FILE [FILE ...]\n");
@@ -79,7 +82,13 @@ main(int argc, char **argv)
 
   files = argv + 2;
   printf("STARTING\n");
-  fflush(stdout);
-  return watchpaths(files, argc - 2, callback, &count);
+  if(0 != fflush(stdout)){
+    err(20, "Unable to flush");
+  }
+  ret = watchpaths(files, argc - 2, callback, &count);
+  if(0 != ret){
+    err(2, "Error in watchpaths call");
+  }
   printf("DONE\n");
+  return ret;
 }
