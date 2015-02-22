@@ -74,7 +74,7 @@ main(int argc, char **argv)
   int count, ret;
 
   if(argc < 3){
-    errx(1,"USAGE: t_watchpaths TIMES FILE [FILE ...]\n");
+    errx(1, "USAGE: t_watchpaths TIMES FILE [FILE ...]\n");
   }
 
   count = atoi(argv[1]);

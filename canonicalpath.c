@@ -46,7 +46,7 @@
 #endif
 
 #ifdef S_SPLINT_S
-static const char* CP_EMPTY_PATH = "";
+static const char *CP_EMPTY_PATH = "";
 #define report_error perror
 #define debug_print printf
 #define debug_printf printf
@@ -92,12 +92,10 @@ canonicalpath(/*@null@*/ const char * restrict base,
     goto ERR;
   }
 
-  /* idea */
-
   if(rel != NULL && *rel == '/'){
     /* rel is absolute, ignore base */
     base = NULL;
-  } else if(base == NULL) {
+  } else if(base == NULL){
     /* rel is not absolute, but base is null. put cwd in base */
 
 /*@-nullpass@*/
@@ -119,17 +117,15 @@ canonicalpath(/*@null@*/ const char * restrict base,
   if(rel != NULL && *rel == '\0') rel = NULL;
 
   /* if only one of (rel, base) are present, put it in rel */
-  if(rel == NULL) {
+  if(rel == NULL){
     rel = base;
     base = NULL;
   }
 
-  /* /idea */
-
   maxosize = 2; /* room for '/' and '\0' */
 
   /* establish a reference to the end of base */
-  if(base == NULL) {
+  if(base == NULL){
     ebase = NULL;
   } else {
     slen = strnlen(base, PATH_MAX);
@@ -271,7 +267,7 @@ canonicalpath(/*@null@*/ const char * restrict base,
      * release the unused memory
      */
 
-    debug_printf("\nA:%p\nB:%p\n\n", (void*)op, (void*)out);
+    debug_printf("\nA:%p\nB:%p\n\n", (void *)op, (void *)out);
 
     if(oused == 1){
       /*

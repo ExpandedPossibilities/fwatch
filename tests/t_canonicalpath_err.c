@@ -34,10 +34,11 @@
 #include <assert.h>
 #include <string.h>
 
-
 #define bufflen 9
 
-int main(/*@unused@*/ int argc, /*@unused@*/ char **argv){
+int
+main(/*@unused@*/ int argc, /*@unused@*/ char **argv)
+{
   char data[] = "1234567890";
   char *base, *path, *result;
   char buff[bufflen + 1];

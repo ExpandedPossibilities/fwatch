@@ -66,7 +66,7 @@ main(int argc, char **argv)
     base = argv[1];
   }
 
-  for( i = base == NULL ? 1 : 2; i < argc ; i++) {
+  for(i = base == NULL ? 1 : 2; i < argc; i++){
     pth = canpath(base, argv[i]);
     if(pth == NULL) err(1, "Failed to calculate canonical path");
     printf("%s\n", pth);

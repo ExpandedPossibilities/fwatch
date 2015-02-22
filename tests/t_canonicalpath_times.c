@@ -34,17 +34,21 @@
 #include <assert.h>
 #include <string.h>
 
-static char* longstr(size_t size){
+static char *
+longstr(size_t size)
+{
   char *out;
   assert(size >= 1);
   out = malloc(size + 1);
   assert(out != NULL);
-  memset(out, (int) 'x', size);
+  memset(out, (int)'x', size);
   out[size] = '\0';
   return out;
 }
 
-int main(int argc, char **argv){
+int
+main(int argc, char **argv)
+{
   long i, count;
   char *result, *base, *path;
 
@@ -59,7 +63,7 @@ int main(int argc, char **argv){
   base = longstr(PATH_MAX);
   path = longstr(PATH_MAX);
 
-  for(i = 0; i < count; i++) {
+  for(i = 0; i < count; i++){
     result = canpath(base, path);
     assert(result != NULL);
     free(result);

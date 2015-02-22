@@ -187,7 +187,7 @@ main(int argc, char **argv)
    * vulnerabilities. Using an array for the arguments allows the use
    * of execvp instead of system.
    */
-  for(i = 1; i<argc && ! (argv[i][0] == ';' && argv[i][1] == '\0'); i++){
+  for(i = 1; i < argc && !(argv[i][0] == ';' && argv[i][1] == '\0'); i++){
     if(argv[i][0] == '{' && argv[i][1] == '}' && argv[i][2] == '\0'){
       info.replace = info.c_argc;
     }

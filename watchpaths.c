@@ -325,7 +325,7 @@ watchpaths(char **inpaths, int numpaths,
   int numtypes = 0;
 
   /* calculate mask to use in EV_SET call */
-  numtypes = (int) (sizeof(types)/sizeof(types[0]));
+  numtypes = (int) (sizeof(types) / sizeof(types[0]));
   for(i = 0; i < numtypes; i++){
    typemask |= types[i];
   }

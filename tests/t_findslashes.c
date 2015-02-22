@@ -33,12 +33,14 @@
 #include <err.h>
 #include <assert.h>
 
-int main(int argc, char **argv){
+int
+main(int argc, char **argv)
+{
   char **slashes;
   char *path;
   /*@dependent@*/ char *it;
   size_t count, i, plen;
-  if(argc < 2 ){
+  if(argc < 2){
     printf("USAGE: t_findslashes PATH\n");
     return 1;
   }

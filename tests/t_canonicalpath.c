@@ -39,13 +39,14 @@ int cp_did_oversize = 0;
 #include <string.h>
 #include <regex.h>
 
-
-int main(int argc, char **argv){
+int
+main(int argc, char **argv)
+{
   char *base, *path, *expected, *result;
   regex_t reg;
   int bres, pres, ok;
 
-  if(argc < 4 ){
+  if(argc < 4){
     printf("USAGE: t_canonicalpath BASE PATH EXPECTED\n");
     return 1;
   }
@@ -78,12 +79,12 @@ int main(int argc, char **argv){
 
   if((*path == '/' && pres == REG_NOMATCH) ||
      (pres == REG_NOMATCH && bres == REG_NOMATCH)){
-    if(cp_did_oversize != 0) {
+    if(cp_did_oversize != 0){
       errx(5, "\nGiven '%s' '%s' '%s' : Unexpected oversize in canonicalpath",
            base, path, expected);
     }
   } else {
-    if(cp_did_oversize == 0) {
+    if(cp_did_oversize == 0){
       errx(4, "\nGiven '%s' '%s' '%s' : Expected oversize in canonicalpath"
            "did not occur", base, path, expected);
     }
