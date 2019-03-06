@@ -6,7 +6,7 @@ This repository provides four things:
     of a list of files is modified.
  2. `canname`: A command-line utility in the spirit of `basename(1)` and
     `dirname(1)` which returns the canonical name of its argument
- 3. `watchpaths()`: A function for programs to be receive a callback when
+ 3. `watchpaths()`: A function for programs to receive a callback when
     any one of a list of files is modified.
  4. `canonicalpath()` and `canpath()`: Functions for converting relative
     pathnames to absolute pathnames
